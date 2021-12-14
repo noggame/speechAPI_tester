@@ -1,5 +1,6 @@
 import requests
 import json
+from aihubData import AIDataHub
 
 class kakaoAPI:
     def __init__(self) -> None:
