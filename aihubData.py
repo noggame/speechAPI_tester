@@ -43,20 +43,24 @@ class AIDataHub:
 
         return targetList
 
-    def getExpectedResultList(self, sentence):
-        ################# 파일경로 입력받아서 기대값 추출
+    def extractExpectedSentence(self, path):
+        if path is None:
+            print("[warning] path is none")
+            return None
+
+        target = open(path, 'r').readline()
         # print("[원본] " + sentence)
         
-        headwords = re.findall("\([\w\s]+\)[/]*", sentence)         # 표제어 추출 ('괄호' 및 '/' 구분자 가정)
-        sentence_div = re.sub("[/]*\([\w\s]+\)", "^", sentence)
+        headwords = re.findall("\([\w\s]+\)[/]*", target)         # 표제어 추출 ('괄호' 및 '/' 구분자 가정)
+        sentence_div = re.sub("[/]*\([\w\s]+\)", "^", target)
         sentence_div = re.sub("[\^]+", "^", sentence_div)           # 표제어 위치 표시된 문장 (^)
 
         ##### 표제어 리스트로 정리
         hwList = []
-        totalLen = 1
         tmpAry = []
-        for a in headwords:
-            # list에 추가
+        totalLen = 1
+
+        for a in headwords:    
             if not str.endswith(a, '/'):
                 tmpAry.append(a[1:len(a)-1])
                 hwList.append(tmpAry)
@@ -90,12 +94,16 @@ class AIDataHub:
                 blank = combSentence.find('^')
                 combSentence = combSentence[:blank] + word + combSentence[blank+1:]
 
+            # 후처리 및 저장
+            combSentence = re.sub("[n/\.\?]*", '', combSentence)
             combList.append(combSentence)
 
         return combList
 
-    def extractExpectedSentence(self, path):
-        target = open(path, 'r')
+    # def extractExpectedSentence(self, path):
+    #     target = open(path, 'r')
         
-        print(target.readline()[3:])
+    #     sentenseList = self.getExpectedResultList(target.readline()[3:])
+        
+    #     print(sentenseList, sep="\n")
 

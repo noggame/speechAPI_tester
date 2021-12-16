@@ -1,29 +1,53 @@
 import requests
 import json
-from aihubData import AIDataHub
 
 class kakaoAPI:
-    def __init__(self) -> None:
-        self.url = 'https://kakaoi-newtone-openapi.kakao.com/v1/recognize'
-        self.header = {
-                # 'Transfer-Encoding': 'chunked',
-                'Content-Type': 'application/octet-stream',
-                'Authorization': 'KakaoAK 697f04dd01214c2a532634d6df4d1126'
+    def __init__(self, url ='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
+                        authorization = 'KakaoAK 697f04dd01214c2a532634d6df4d1126',
+                        data = None) -> None:
+
+        self._url = url
+        self._header = {
+            'Content-Type': 'application/octet-stream',
+            'Authorization': authorization
         }
-        self.data = "/home/sdh/workspace/api_tester/sample/S00000001/0001.wav"
+        self._data = data
 
-    def changeRequest(self, url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
-                            header={
-                                'Content-Type': 'application/octet-stream',
-                                'Authorization': 'KakaoAK 697f04dd01214c2a532634d6df4d1126'
-                            },
-                            data='/home/sdh/workspace/api_tester/sample/S00000001/0001.wav'):
-        self.url = url
-        self.header = header
-        self.data = data
+    @property
+    def url(self):
+        return self._url
 
-    def requestSTT(self, file = '/home/sdh/workspace/api_tester/sample/S00000001/0001.wav'):
-        data = open(file, 'rb')
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def header(self):
+        return self._header
+
+    @url.setter
+    def url(self, url):
+        self._url = url
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
+    @header.setter
+    def header(self, authorization):
+        self.header = {
+            'Content-Type': 'application/octet-stream',
+            'Authorization': authorization
+        }
+
+    def requestSTT(self, file):
+        try:
+            if file is None:
+                file = self._data
+            data = open(file, 'rb')
+        except FileNotFoundError:
+            print("check the file")
+        
         response = requests.post(url = self.url, headers = self.header, data = data)
 
         if response.status_code == 200:
