@@ -4,10 +4,10 @@ import logging
 
 class AIDataHub:
 
-    def __init__(self, baseDir=None, targetFile=None, wavFile=None) -> None:
+    def __init__(self, baseDir=None, targetFile=None, voiceFileExt=None) -> None:
         self._baseDir = baseDir
         self._targetFile = targetFile
-        self._wavFile = wavFile
+        self._voiceFileExt = voiceFileExt
 
     @property
     def baseDir(self):
@@ -18,8 +18,8 @@ class AIDataHub:
         return self._targetFile
 
     @property
-    def wavFile(self):
-        return self._wavFile
+    def voiceFileExt(self):
+        return self._voiceFileExt
     
     @baseDir.setter
     def baseDir(self, path):
@@ -29,17 +29,16 @@ class AIDataHub:
     def targetFile(self, targetFile):
         self._targetFile = str(targetFile)
 
-    @wavFile.setter
-    def wavFile(self, wavFile):
-        self._wavFile = str(wavFile)
+    @voiceFileExt.setter
+    def voiceFileExt(self, voiceFileExt):
+        self._voiceFileExt = str(voiceFileExt)
 
     def getTargetList(self):
         targetList = []
         
         for root, dirs, files in os.walk(self._baseDir):
             if self._targetFile in files:
-                targetList.append([os.path.join(root, self._targetFile), os.path.join(root, self._wavFile)])
-
+                targetList.append([os.path.join(root, self._targetFile), os.path.join(root, self._voiceFileExt)])
 
         return targetList
 
