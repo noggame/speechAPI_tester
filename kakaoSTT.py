@@ -1,5 +1,6 @@
 import requests
 import json
+import logging
 
 class kakaoAPI:
     def __init__(self, url ='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
@@ -46,9 +47,11 @@ class kakaoAPI:
                 file = self._data
             data = open(file, 'rb')
         except FileNotFoundError:
-            print("check the file")
+            logging.exception("File not found")
         
         response = requests.post(url = self.url, headers = self.header, data = data)
+        # logging.info(response.headers)
+        # logging.info(response.text)
 
         if response.status_code == 200:
             try:
@@ -56,7 +59,7 @@ class kakaoAPI:
                 result_value = json.loads(result_data)['value']
                 return result_value
             except:
-                print("fail parsing result")
+                logging.exception("fail parsing result")
             
         return response
 

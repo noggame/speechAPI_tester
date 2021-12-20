@@ -1,4 +1,4 @@
-import re
+import logging
 
 class CompareData:
 
@@ -12,7 +12,7 @@ class CompareData:
 
         # counting chars
         for ch in actualResult:
-            if ch is ' ':
+            if ch == ' ':
                 continue
             else:            
                 actualDic[ch] = int(1) if actualDic.get(ch) is None else actualDic[ch]+1
@@ -38,7 +38,9 @@ class CompareData:
                 totalLeftChar += cmpDic.get(leftChar)
 
             eachScore = round((1-totalLeftChar/actualLen)*100, 2)
-            print(f"EXP Result = {expected} ({eachScore} %)")
+            print(f"[매칭결과] = {expected} ({eachScore} %)")
+            logging.info(f"[매칭결과] = {expected} ({eachScore} %)")
+
             score = eachScore if eachScore > score else score
 
         return score

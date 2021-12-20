@@ -1,6 +1,6 @@
 import os
 import re
-import json
+import logging
 
 class AIDataHub:
 
@@ -49,7 +49,7 @@ class AIDataHub:
             return None
 
         target = open(path, 'r').readline()
-        # print("[원본] " + sentence)
+        logging.info(f'[원본] = {target}')
         
         headwords = re.findall("\([\w\s]+\)[/]*", target)         # 표제어 추출 ('괄호' 및 '/' 구분자 가정)
         sentence_div = re.sub("[/]*\([\w\s]+\)", "^", target)
@@ -99,11 +99,4 @@ class AIDataHub:
             combList.append(combSentence)
 
         return combList
-
-    # def extractExpectedSentence(self, path):
-    #     target = open(path, 'r')
-        
-    #     sentenseList = self.getExpectedResultList(target.readline()[3:])
-        
-    #     print(sentenseList, sep="\n")
 
