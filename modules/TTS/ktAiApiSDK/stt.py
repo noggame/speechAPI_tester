@@ -128,7 +128,6 @@ class STT:
 
             response = http_utils.requestMultipart(strUrl, json_object, metdata_json_object, audioData)
 
-
             if response[http_utils.RESPONSE_STATUS_CODE] == 301:
                 entrypoint = http_utils.setHttpEntrypoint(json.loads(response[http_utils.RESPONSE_RESULT]))
                 self.setServiceURL('https://' + entrypoint)

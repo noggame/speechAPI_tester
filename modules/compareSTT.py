@@ -5,7 +5,8 @@ class CompareData:
     def __init__(self) -> None:
         pass
 
-    def compareWithKakaoSTT(expectedList, actualResult):
+    # def compareWithKakaoSTT(expectedList, actualResult):
+    def calculateAccuracy(expectedList, actualResult):
         actualDic = {}
         actualLen = 0
         score = 0
@@ -38,8 +39,8 @@ class CompareData:
                 totalLeftChar += cmpDic.get(leftChar)
 
             eachScore = round((1-totalLeftChar/actualLen)*100, 2)
-            print(f"[매칭결과] = {expected} ({eachScore} %)")
-            logging.info(f"[매칭결과] = {expected} ({eachScore} %)")
+            print(f'>> {expected} (acc : {eachScore} %)')
+            logging.info(f'>> {expected} (acc : {eachScore} %)')
 
             score = eachScore if eachScore > score else score
 

@@ -1,61 +1,75 @@
-from aihubData import AIDataHub
-from kakaoSTT import kakaoAPI
-from compareSTT import CompareData
+# from kakaoSTT import kakaoAPI
 import os
 import logging
+from datetime import datetime
 from pydub import AudioSegment
-import ktstt.stt_async_client as ktapi
-
-logging.basicConfig(filename=f'{os.getcwd()}/result_test.log', level=logging.INFO, format='%(asctime)s %(message)s')
+import modules.TTS.kakaoSTT as kakao_api
+import modules.TTS.ktSTT as kt_api
+from modules.aihubData import AIDataHub
+from modules.compareSTT import CompareData
+import time
 
 ##### get sample data list
-aidata = AIDataHub(baseDir=str(os.getcwd()+"/sample_nodup"),
+aidata = AIDataHub(baseDir=str(os.getcwd()+"/sample/sample_nodup"),
                     targetFile='0001.txt',
-                    voiceFileExt='0001.mp3')
+                    voiceFileExt='0001.wav')
+logging.basicConfig(filename=f'{os.getcwd()}/logs/result_test_{datetime.now().strftime("%Y%d%m%H%M%S")}.log',
+                    level=logging.INFO,
+                    format='%(asctime)s %(message)s')
 
-avgScore = 0
-totalScore = 0
+totalScore = {
+    'kt':0,
+    'kakao':0
+}
+avgScore = {
+    'kt':0,
+    'kakao':0
+}
+matchingScore = {}
 NumOfSample = 0
 
 
 ##### 분석
 temp_cnt = 1                                      ################# tmp1
-for txt, ext in aidata.getTargetList():
-    logging.info(f'file = {txt} && wav = {ext}')
-    print(txt + " - " + ext)
+for txt, ext_wav in aidata.getTargetList():
+    logging.info(f'file = {txt} && wav = {ext_wav}')
+    print(txt + " - " + ext_wav)
 
-    if not os.path.isfile(ext): # mp3 파일이 없는경우 wav 파일을 변환하여 사용
+    # convert wav to mp3
+    ext_mp3 = ext_wav[:-4]+'.mp3'
+    if not os.path.isfile(ext_mp3): # mp3 파일이 없는경우 wav 파일을 변환하여 사용
         try:
-            sound = AudioSegment.from_wav(ext[:-4]+'.wav')
-            sound.export(ext, format="mp3")
+            print(ext_wav)
+            voice = AudioSegment.from_file(file=ext_wav)
+            voice.export(ext_mp3, format="mp3")
+
+            while True:
+                time.sleep(1)
+                print('sleep')
+                if os.path.isfile(ext_mp3):
+                    break
+
         except FileNotFoundError:
             logging.exception('Fail to convert wav to mp3 file')
 
+    
+
     # 기대결과
     expectedList = aidata.extractExpectedSentence(txt)
-    print(f'[기대값] = {expectedList}', sep='\n')
-    logging.info(f'[기대값] = {expectedList}')
+    print(f'[EXP] = {expectedList}', sep='\n')
 
 
-    # 실제결과 - kt
-    sttResult_kt = ktapi.requestKtSTT(ext)
-    print(sttResult_kt)
-    # # 실제결과 - kakao
-    # kakao_api = kakaoAPI()
-    # sttResult_kakao = kakao_api.requestSTT(ext)
-    # print(f"[KAKAO_STT] = {sttResult_kakao}")
-    # logging.info(f'[KAKAO_STT] = {sttResult_kakao}')
+    # STT 요청 및 결과비교
+    sttResult_kt = kt_api.requestKtSTT(ext_mp3)             # KT STT 결과
+    matchingScore['kt'] = CompareData.calculateAccuracy(expectedList, sttResult_kt)
+    sttResult_kakao = kakao_api.requestKakaoSTT(ext_wav)    # KAKAO STT 결과
+    matchingScore['kakao'] = CompareData.calculateAccuracy(expectedList, sttResult_kakao)
 
     # 결과비교
-    #2) 기대결과 리스트 중 실제결과와 가장 일치율이 높은 점수 반환
-    matchingScore={}
-    matchingScore['kt'] = CompareData.compareWithKakaoSTT(expectedList, sttResult_kt)
-    # matchingScore['kakao'] = CompareData.compareWithKakaoSTT(expectedList, sttResult_kakao)
-    # print(f'[최고일치율] = {matchingScore}')
-    # logging.info(f'[최고일치율] = {matchingScore}')
+    totalScore['kt'] += matchingScore['kt']
+    totalScore['kakao'] += matchingScore['kakao']
 
-    # totalScore += matchingScore
-    # NumOfSample += 1
+    NumOfSample += 1
 
     temp_cnt -= 1               ################# tmp1
     if temp_cnt <= 0:           ################# tmp1
@@ -67,9 +81,14 @@ for txt, ext in aidata.getTargetList():
 
 
 ##### 평균
-# try:
-#     avgScore = round(totalScore/NumOfSample, 2)
-#     print(f'\n[평균일치율] = {avgScore}')
-#     logging.info(f'[평균일치율] = {avgScore}')
-# except FileNotFoundError:
-#     print('not found any file')
+try:
+    avgScore['kt'] = round(totalScore['kt']/NumOfSample, 2)
+    print(f'\n[avg_kt] = {avgScore["kt"]}')
+    logging.info(f'[avg_kt] = {avgScore["kt"]}')
+
+    avgScore['kakao'] = round(totalScore['kakao']/NumOfSample, 2)
+    print(f'\n[avg_kko] = {avgScore["kakao"]}')
+    logging.info(f'[avg_kko] = {avgScore["kakao"]}')
+
+except FileNotFoundError:
+    print('not found any file')

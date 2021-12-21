@@ -48,7 +48,7 @@ class AIDataHub:
             return None
 
         target = open(path, 'r').readline()
-        logging.info(f'[원본] = {target}')
+        logging.info(f'[ORG] = {target}')
         
         headwords = re.findall("\([\w\s]+\)[/]*", target)         # 표제어 추출 ('괄호' 및 '/' 구분자 가정)
         sentence_div = re.sub("[/]*\([\w\s]+\)", "^", target)
@@ -96,6 +96,8 @@ class AIDataHub:
             # 후처리 및 저장
             combSentence = re.sub("[n/\.\?]*", '', combSentence)
             combList.append(combSentence)
+
+        logging.info(f'[EXP] = {combList}')
 
         return combList
 
