@@ -1,15 +1,17 @@
-# from kakaoSTT import kakaoAPI
+# official
 import os
 import logging
+import time
 from datetime import datetime
 from pydub import AudioSegment
+# user defined
 import modules.TTS.kakaoSTT as kakao_api
 import modules.TTS.ktSTT as kt_api
 from modules.aihubData import AIDataHub
 from modules.compareSTT import CompareData
-import time
 
-##### get sample data list
+
+##### get sample list
 aidata = AIDataHub(baseDir=str(os.getcwd()+"/sample/sample_nodup"),
                     targetFile='0001.txt',
                     voiceFileExt='0001.wav')
@@ -30,7 +32,7 @@ NumOfSample = 0
 
 
 ##### 분석
-temp_cnt = 1                                      ################# tmp1
+# temp_cnt = 1                                      ################# tmp1
 for txt, ext_wav in aidata.getTargetList():
     logging.info(f'file = {txt} && wav = {ext_wav}')
     print(txt + " - " + ext_wav)
@@ -60,10 +62,12 @@ for txt, ext_wav in aidata.getTargetList():
 
 
     # STT 요청 및 결과비교
+    ##### @@@ [implement] String Comparison/Similarity algorithm
     sttResult_kt = kt_api.requestKtSTT(ext_mp3)             # KT STT 결과
     matchingScore['kt'] = CompareData.calculateAccuracy(expectedList, sttResult_kt)
     sttResult_kakao = kakao_api.requestKakaoSTT(ext_wav)    # KAKAO STT 결과
     matchingScore['kakao'] = CompareData.calculateAccuracy(expectedList, sttResult_kakao)
+
 
     # 결과비교
     totalScore['kt'] += matchingScore['kt']
@@ -71,9 +75,9 @@ for txt, ext_wav in aidata.getTargetList():
 
     NumOfSample += 1
 
-    temp_cnt -= 1               ################# tmp1
-    if temp_cnt <= 0:           ################# tmp1
-        break                   ################# tmp1
+    # temp_cnt -= 1               ################# tmp1
+    # if temp_cnt <= 0:           ################# tmp1
+    #     break                   ################# tmp1
 
 
 ##### 그래프 
