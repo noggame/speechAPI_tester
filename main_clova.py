@@ -1,20 +1,17 @@
-# official
+from modules.datactl.clovaData import ClovaDataController
 import os
 import logging
-import time
 from datetime import datetime
 from pydub import AudioSegment
-# user defined
+import time
+
+import re
 import modules.TTS.kakaoSTT as kakao_api
 import modules.TTS.ktSTT as kt_api
-from modules.datactl.aihubData import AIDataHub
 from modules.compareSTT import CompareData
 
-
-##### get sample list
-aidata = AIDataHub(baseDir=str(os.getcwd()+"/sample/sample_nodup"),
-                    targetFile='0001.txt',
-                    voiceFileExt='0001.wav')
+# clovaCTL = ClovaDataController(voiceDir=f'{baseDir}/wavs_train', answer="train_ClovaCall.json")
+clovaCTL = ClovaDataController(baseDir=f'{os.getcwd()}/sample/clova_dataset', answer="train_ClovaCall.json")
 logging.basicConfig(filename=f'{os.getcwd()}/logs/result_test_{datetime.now().strftime("%Y%d%m%H%M%S")}.log',
                     level=logging.INFO,
                     format='%(asctime)s %(message)s')
@@ -30,12 +27,18 @@ avgScore = {
 matchingScore = {}
 NumOfSample = 0
 
+tmp_cnt = 10
+for dataset in clovaCTL.getExpectedList():
 
-##### 분석
-# temp_cnt = 1                                      ################# tmp1
-for txt, ext_wav in aidata.getTargetList():
-    logging.info(f'file = {txt} && wav = {ext_wav}')
-    print(txt + " - " + ext_wav)
+    wav, text, speaker_id = dataset['wav'], dataset['text'], dataset['speaker_id']
+
+    # classify
+    if not any(x in text for x in ["주차"]):
+        continue
+
+    logging.info(f'{wav} / {text} / {speaker_id}')
+    print(f'{wav} / {text} / {speaker_id}')
+    ext_wav = f'{clovaCTL.baseDir}/wavs_train/{wav}'
 
     # convert wav to mp3
     ext_mp3 = ext_wav[:-4]+'.mp3'
@@ -47,24 +50,25 @@ for txt, ext_wav in aidata.getTargetList():
 
             while True:
                 time.sleep(1)
-                print('sleep')
+                print('converting...')
                 if os.path.isfile(ext_mp3):
                     break
 
         except FileNotFoundError:
             logging.exception('Fail to convert wav to mp3 file')
 
-    
-
     # 기대결과
-    expectedList = aidata.extractExpectedSentence(txt)
+    expectedList = [re.sub("[n/\.\?]*", '', text)]
     print(f'[EXP] = {expectedList}', sep='\n')
+    logging.info(f'[EXP] = {expectedList}', sep='\n')
 
 
     # STT 요청 및 결과비교
     ##### @@@ [implement] String Comparison/Similarity algorithm
+    print("[KT]")
     sttResult_kt = kt_api.requestKtSTT(ext_mp3)             # KT STT 결과
     matchingScore['kt'] = CompareData.calculateAccuracy(expectedList, sttResult_kt)
+    print("[KAKAO]")
     sttResult_kakao = kakao_api.requestKakaoSTT(ext_wav)    # KAKAO STT 결과
     matchingScore['kakao'] = CompareData.calculateAccuracy(expectedList, sttResult_kakao)
 
@@ -75,13 +79,9 @@ for txt, ext_wav in aidata.getTargetList():
 
     NumOfSample += 1
 
-    # temp_cnt -= 1               ################# tmp1
-    # if temp_cnt <= 0:           ################# tmp1
-    #     break                   ################# tmp1
-
-
-##### 그래프 
-
+    tmp_cnt-=1
+    if tmp_cnt <= 0:
+        break
 
 
 ##### 평균
@@ -92,4 +92,3 @@ logging.info(f'[avg_kt] = {avgScore["kt"]}')
 avgScore['kakao'] = round(totalScore['kakao']/NumOfSample, 2)
 print(f'\n[avg_kko] = {avgScore["kakao"]}')
 logging.info(f'[avg_kko] = {avgScore["kakao"]}')
-
