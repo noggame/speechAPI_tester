@@ -42,6 +42,6 @@ def requestKtSTT(file_path, client_id=None, client_key=None, client_secret=None)
                     logging.info(f'[KT_STT] {stt_answer}')
 
         except Exception:
-            logging.exception(f'request exception - result_array = {result_array}, query_result_json = {query_result_json}')
+            logging.exception(f'[Exception] request err - result_array = {result_array}, query_result_json = {query_result_json}')
 
         return stt_answer
