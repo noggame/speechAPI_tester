@@ -9,7 +9,7 @@ def calculateAccuracy_cmplib(expectedList, actualResult):
         eachScore = SequenceMatcher(None, expected, actualResult).ratio()
         eachScore = round(eachScore*100, 2)
 
-        print(f'[ACC] {eachScore} %')
+        # print(f'[ACC] {eachScore} %')
         logging.info(f'[ACC] {eachScore} %')
 
         score = eachScore if eachScore > score else score
@@ -49,7 +49,7 @@ def calculateAccuracy_exp(expectedList, actualResult):
             totalLeftChar += expectedDic.get(leftChar)
 
         eachScore = round((1-totalLeftChar/expectedLen)*100, 2)
-        print(f'[ACC] {eachScore} %')
+        # print(f'[ACC] {eachScore} %')
         logging.info(f'[ACC] {eachScore} %')
 
         score = eachScore if eachScore > score else score
@@ -90,7 +90,7 @@ def calculateAccuracy_actual(expectedList, actualResult):
             totalLeftChar += cmpDic.get(leftChar)
 
         eachScore = round((1-totalLeftChar/actualLen)*100, 2)
-        print(f'[ACC] {eachScore} %')
+        # print(f'[ACC] {eachScore} %')
         logging.info(f'[ACC] {eachScore} %')
 
         score = eachScore if eachScore > score else score

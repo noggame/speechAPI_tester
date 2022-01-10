@@ -2,6 +2,7 @@ import logging
 import json
 
 class ClovaDataController:
+    # (baseDir = targetBasePath, answer = answerFileName)
     def __init__(self, baseDir=None, answer=None) -> None:
         self._baseDir = baseDir
         self._answer = answer
@@ -29,3 +30,4 @@ class ClovaDataController:
             logging.exception(f'{self._baseDir}/{self._answer} file not found.')
 
         return json.loads(target)
+        
