@@ -1,18 +1,46 @@
 
-
 class TestData:
-    def __init__(self) -> None:
-        self.id = None
-        self.expected = None
-        self.stt_kt = None
-        self.stt_kakao = None
-        self.acc_kt = 0
-        self.acc_kakao = 0
-        self.winner = None
-    
+    def __init__(self, id, expectedList, sampleFilePath) -> None:
+        self._id = id
+        self._expectedList = expectedList
+        self._sampleFilePath = sampleFilePath
+
     def __str__(self) -> str:
-        expected = f'Expected : {self.expected} (id : {self.id})'
-        stt_kt = f'KT : {self.stt_kt} ({self.acc_kt} %)'
-        stt_kakao = f'KAKAO : {self.stt_kakao} ({self.acc_kakao} %)'
-        winner = f'WIN : {self.winner}'
-        return f'{expected}\n{stt_kt}\n{stt_kakao}\n{winner}\n'
+        # id
+        result = f'ID : {self._id}\n'
+        
+        # expectedList
+        result += 'Expected : ['
+        for i in range(len(self._expectedList)):
+            result += f', "{self._expectedList[i]}"' if i > 0 else f'"{self._expectedList[i]}"'
+        result += ']\n'
+
+        # sampleFilePath
+        result += f'SampleFilePath : {self._sampleFilePath}'
+
+        return result
+
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def expectedList(self):
+        return self._expectedList
+
+    @property
+    def sampleFilePath(self):
+        return self._sampleFilePath
+
+    @id.setter
+    def id(self, id):
+        self._id = id
+
+    @expectedList.setter
+    def expectedList(self, expectedList):
+        self._expectedList = expectedList
+        
+    @sampleFilePath.setter
+    def sampleFilePath(self, sampleFilePath):
+        self._sampleFilePath = sampleFilePath
