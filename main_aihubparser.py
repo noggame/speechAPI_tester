@@ -34,4 +34,4 @@ tc.addTestData(clvp)
 tc.addAPICaller(ktapi)
 tc.addAPICaller(kakaoapi)
 
-tc.start(limit=1)
+tc.start(limit=10)

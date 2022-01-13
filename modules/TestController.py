@@ -54,15 +54,16 @@ class TestController:
                                     categories = self._staticTool.categorize([hm_expected, hm_actual]))
 
                     self._resultRepo.addTestResult(testResult=tr)
-                    print(self._resultRepo)
+                    
 
                     logging.info(f'\n[TestResult]\n{tr}')
 
                     # self._staticInfo.addTestResult
 
                     # self._staticInfo.addTestResult(tr, categoryList=['예약', '주차', '메뉴', '영업'])
-
-        logging.info(self._staticTool.getStatics())
+                    
+        print(self._resultRepo)
+        # logging.info(self._staticTool.getStatics())
 
     def getStatics(self):
         # @@@@@@@@@@@@@@ 저장된 self._staticInfo 를 

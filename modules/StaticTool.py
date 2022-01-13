@@ -43,7 +43,7 @@ class StaticTool:
         for target in targetList:
             # except [number & digit]
             if re.findall('[a-zA-Z0-9]+', target):
-                return ['NonAvailable']
+                return ['NA']   # Not Applicable
 
             # classify category
             for ct in self._categoryList:
@@ -52,7 +52,7 @@ class StaticTool:
             
             # not matched any category
             if not len(categorySet):
-                categorySet.add('NonClassified')
+                categorySet.add('NC')   # Not Classified
 
 
             # @@@@@@@@ what about empty
