@@ -1,4 +1,6 @@
+from sre_compile import isstring
 from typing import List
+from urllib import response
 from modules.APICaller.APICaller import APICaller
 from modules.APICaller.STT.ktAiApiSDK.stt import STT as KT_STT_SDK
 import modules.SoundConverter as sc
@@ -53,10 +55,15 @@ class KT_STT(APICaller):
         sttResult = []
         with open(_targetFile, mode='rb') as file:
             audio_data = file.read()
-            result_json = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
+            result_json:dict = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
+            # result_json = json.loads(kt_response)
+            if isstring(result_json):
+                result_json = json.loads(result_json)
+
             
             if not result_json or result_json.get('statusCode') != 200:
                 logging.exception(f'[Exception] {__class__.__name__} - None Transaction id')
+                logging.exception(result_json)
                 return
 
             try:

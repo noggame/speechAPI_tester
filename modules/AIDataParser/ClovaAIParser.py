@@ -16,19 +16,14 @@ class ClovaAIParser(AIDataParser):
 
         # json 파일 정보 파싱
         try:
-            ansewerFile = open(f'{_targetPath}/train_ClovaCall.json', 'r').readline()
+            answerFile = open(f'{_targetPath}/train_ClovaCall.json', 'r').readline()
 
-            for expectedInfo in json.loads(ansewerFile):
+            for expectedInfo in json.loads(answerFile):
                 if limit > 0 and _numOftd >= limit:  # limit number of test dataset
                     break
 
                 # get data
                 wav, expected, speakerId = expectedInfo['wav'], expectedInfo['text'], expectedInfo['speaker_id']
-
-                # # except [number & digit]
-                # if re.findall('[a-zA-Z0-9]+', expected):    
-                #     continue
-
                 td = TestData(id=wav[:-4], expectedList=[expected], sampleFilePath=f'{_targetPath}/wavs_train/{wav}')
                 _testDataList.append(td)
 

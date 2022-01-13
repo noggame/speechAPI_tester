@@ -8,7 +8,7 @@ from modules.APICaller.STT.Kakao_STT import Kakao_STT
 
 from modules.TestController import TestController
 
-logging.basicConfig(filename=f'{os.getcwd()}/logs/result_test_{datetime.now().strftime("%Y%d%m%H%M%S")}.log',
+logging.basicConfig(filename=f'{os.getcwd()}/logs/result_test_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
                     level=logging.INFO,
                     format='%(asctime)s %(message)s')
 
@@ -29,7 +29,7 @@ kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize'
 
 ### Test TestController
 tc = TestController()
-# tc.addTestData(aihp)
+tc.addTestData(aihp)
 tc.addTestData(clvp)
 tc.addAPICaller(ktapi)
 tc.addAPICaller(kakaoapi)
