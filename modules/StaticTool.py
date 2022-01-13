@@ -8,7 +8,7 @@ from data.ResultRepository import ResultRepository
 class StaticTool:
 
     def __init__(self, categoryList:List=[]) -> None:
-        self._resultDict = {}
+        self._resultRepo = {}
         self._categoryList = categoryList
         self._total = 0
         self._sumOfAccuracy = 0

@@ -81,7 +81,6 @@ class KT_STT(APICaller):
                     if jsonResult:
                         for eachResult in jsonResult:
                             sttResult.append(eachResult['text'])
-                            logging.info(f'[KT_STT] {sttResult}')
                     else:
                         logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
 

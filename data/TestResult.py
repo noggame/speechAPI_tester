@@ -19,7 +19,7 @@ class TestResult:
         result_str += f'[Expected] : {self.expected}\n'
         result_str += f'[Actual] : {self.actual}\n'
         result_str += f'[Accuracy] : {self.accuracy}\n'
-        result_str += f'[Categories] : {self.accuracy}'
+        result_str += f'[Categories] : {self.categories}'
 
         return result_str
         

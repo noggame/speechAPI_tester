@@ -34,7 +34,7 @@ class Kakao_STT(APICaller):
                 ttsResultList = []
                 result_data = response.text[response.text.index('{"type":"finalResult"'):response.text.rindex('}')+1]   # response 데이터 파싱 (type=finalResult인 json데이터의 value값)
                 ttsResultList.append(json.loads(result_data)['value'])
-                logging.info(f'[KAKAO_STT] {ttsResultList}')
+                
                 return ttsResultList
             except:
                 logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found')
@@ -42,30 +42,30 @@ class Kakao_STT(APICaller):
         return response
 
 
-def requestKakaoSTT(file_path, authorization=None):
-    url = 'https://kakaoi-newtone-openapi.kakao.com/v1/recognize'
-    header = {
-        'Content-Type': 'application/octet-stream',
-        'Authorization': authorization if authorization else 'KakaoAK 697f04dd01214c2a532634d6df4d1126'
-    }
+# def requestKakaoSTT(file_path, authorization=None):
+#     url = 'https://kakaoi-newtone-openapi.kakao.com/v1/recognize'
+#     header = {
+#         'Content-Type': 'application/octet-stream',
+#         'Authorization': authorization if authorization else 'KakaoAK 697f04dd01214c2a532634d6df4d1126'
+#     }
 
-    try:
-        data = open(file_path, 'rb')
-    except FileNotFoundError:
-        logging.exception("File not found")
+#     try:
+#         data = open(file_path, 'rb')
+#     except FileNotFoundError:
+#         logging.exception("File not found")
     
-    response = requests.post(url = url, headers = header, data = data)
+#     response = requests.post(url = url, headers = header, data = data)
 
-    if response.status_code == 200:
-        try:
-            result_data = response.text[response.text.index('{"type":"finalResult"'):response.text.rindex('}')+1]   # response 데이터 파싱 (type=finalResult인 json데이터의 value값)
-            result_value = json.loads(result_data)['value']
-            logging.info(f'[KAKAO_STT] {result_value}')
-            return result_value
-        except:
-            logging.exception("fail parsing result")
+#     if response.status_code == 200:
+#         try:
+#             result_data = response.text[response.text.index('{"type":"finalResult"'):response.text.rindex('}')+1]   # response 데이터 파싱 (type=finalResult인 json데이터의 value값)
+#             result_value = json.loads(result_data)['value']
+#             logging.info(f'[KAKAO_STT] {result_value}')
+#             return result_value
+#         except:
+#             logging.exception("fail parsing result")
         
-    return response
+#     return response
 
 
 # class kakaoAPI:

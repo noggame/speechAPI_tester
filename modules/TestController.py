@@ -9,8 +9,7 @@ from modules.StaticTool import StaticTool
 import modules.similarity.STT.compareSTT as compareSTT
 
 
-# Test DataSet 관리 및 API호출과 기대값 비교 등 테스트 전반의 기능 제어
-
+# Test DataSet 관리, API호출과 기대값 비교, 통계 등 테스트 수행
 class TestController:
     def __init__(self) -> None:
         self._dataList = []
@@ -31,7 +30,8 @@ class TestController:
 
             for item in dp.getTestDataList(limit=limit):
                 td:TestData = item
-                logging.info(f'testing for {td.sampleFilePath}')
+                print(f'[SAMPLE] {td.sampleFilePath}')
+                logging.info(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[EXP] {td.expectedList}')
 
                 # for each API Call
@@ -39,11 +39,10 @@ class TestController:
                     api:APICaller = eachAPI
 
                     tts_result = api.request(targetFile=td.sampleFilePath)  # api response
-
+                    
                     # select highest matcehd accuracy
                     hm_expected, hm_actual, accuracy = compareSTT.calculateAccuracy_exp(td.expectedList, tts_result)
-                    # _categories = []
-                    # _categories.append(self._staticTool.categorize([hm_expected, hm_actual]))
+                    logging.info(f'[{api.__class__.__name__}] {hm_expected} / {hm_actual} / {accuracy}%')
                     
                     tr = TestResult(id = td.id,
                                     source = td.sampleFilePath,
@@ -54,20 +53,10 @@ class TestController:
                                     categories = self._staticTool.categorize([hm_expected, hm_actual]))
 
                     self._resultRepo.addTestResult(testResult=tr)
-                    
 
-                    logging.info(f'\n[TestResult]\n{tr}')
+        # Finished
 
-                    # self._staticInfo.addTestResult
-
-                    # self._staticInfo.addTestResult(tr, categoryList=['예약', '주차', '메뉴', '영업'])
-                    
         print(self._resultRepo)
+
         # logging.info(self._staticTool.getStatics())
 
-    def getStatics(self):
-        # @@@@@@@@@@@@@@ 저장된 self._staticInfo 를 
-        pass
-
-    # def getStaticInfo(self):
-        # self._staticInfo.

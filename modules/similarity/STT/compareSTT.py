@@ -48,7 +48,6 @@ def calculateAccuracy_exp(expectedList, actualList):
                 totalLeftChar += expectedDicCopy.get(leftChar)
 
             eachScore = round((1-totalLeftChar/expectedLen)*100, 2)
-            logging.info(f'[ACC] {eachScore} %')
 
             # update result
             if eachScore > score:
