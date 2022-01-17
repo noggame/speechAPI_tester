@@ -1,3 +1,4 @@
+import re
 from modules.AIDataParser.AIHubParser import AIHubParser
 from modules.AIDataParser.ClovaAIParser import ClovaAIParser
 import logging
@@ -28,8 +29,13 @@ kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize'
 ### Test TestController
 tc = TestController()
 # tc.addTestData(aihp)
-tc.addTestData(clvp)
-tc.addAPICaller(ktapi)
-tc.addAPICaller(kakaoapi)
+tc.add_STT_TestData(clvp)
+tc.add_STT_API(ktapi)
+tc.add_STT_API(kakaoapi)
 
-tc.start(limit=3)
+sttResultList = tc.startSTTRequest(limit=2, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log')
+analysisResultList = tc.startAnalysisSTTResult(filter=['예약', '주차', '메뉴', '영업'],
+                                            sttResultData = sttResultList,
+                                            # file = f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log',
+                                            record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d")}.log')
+

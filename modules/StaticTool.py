@@ -2,7 +2,7 @@ import re
 import logging
 from typing import List
 from data.TestResult import TestResult
-from data.ResultRepository import ResultRepository
+from data.AnalysisRepository import STTAnalysisRepository
 
 
 class StaticTool:
