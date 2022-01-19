@@ -14,7 +14,7 @@ class TestResult:
         # self._categories = categories
 
     def __str__(self) -> str:
-        result_json = '{'
+        result_json = '{'                                   # open json
         result_json += f'"id": "{self.id}"'
         result_json += f', "source": "{self.source}"'
         result_json += f', "service": "{self.service}"'   # publisher
@@ -39,7 +39,7 @@ class TestResult:
         # result_str += f'[Accuracy] : {self.accuracy}\n'
         # result_str += f'[Categories] : {self.categories}'
 
-        result_json += '}'
+        result_json += '}'                                  # close json
         return result_json
         
     @property

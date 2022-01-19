@@ -80,24 +80,20 @@ def classifySentence(expected:list, actual:list):
 
 
 
-def categorizeSTT(targetList, filter:list=None):
+def categorizeSTT(expected:str, actual:str, categoryFilter:list=None):
     categorySet = set()
 
-    for target in targetList:
-        # except [number & digit]
-        if re.findall('[a-zA-Z0-9]+', target):
-            return ['NA']   # Not Applicable
+    # except [number & digit]
+    if re.findall('[a-zA-Z0-9]+', expected+actual) or len(actual) == 0:
+        return ['NA']   # Not Applicable
 
-        # classify category
-        for ct in filter:
-            if re.search(ct, target):
-                categorySet.add(ct)
-        
-        # not matched any category
-        if not len(categorySet):
-            categorySet.add('NC')   # Not Classified
-
-
-        # @@@@@@@@ what about empty
+    # classify category
+    for ct in categoryFilter:
+        if re.search(ct, expected):
+            categorySet.add(ct)
+    
+    # not matched any category
+    if not len(categorySet):
+        categorySet.add('NC')   # Not Classified
 
     return list(categorySet)

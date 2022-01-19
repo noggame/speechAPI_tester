@@ -6,7 +6,7 @@ import json
 
 class STTAnalysisRepository:
     def __init__(self) -> None:
-        self._analysisRepo = {}
+        self._analysisResultDict = {}
 
         #####   format   #######
         # analysisRepo = {
@@ -28,10 +28,10 @@ class STTAnalysisRepository:
         result_json = '{'                                       # open json
         
         idList = []
-        for aKey in self._analysisRepo.keys():
+        for aKey in self._analysisResultDict.keys():
             result_id_json = ''
 
-            id:dict = self._analysisRepo[aKey]
+            id:dict = self._analysisResultDict[aKey]
             result_id_json += f'"{aKey}": ' + "{"              # open id
             result_id_json += f'"source": "{id.get("source")}"'                    
             result_id_json += ', "statics" : {'                # open statics
@@ -57,51 +57,32 @@ class STTAnalysisRepository:
         return result_json
 
 
-    def addAnalysisData(self, testResult:TestResult, accuracy_filter:list=None, category_filter:list=None):
+    def addAnalysisData(self, testResult:TestResult, accuracyFilter:list=None, categoryFilter:list=None):
         """ TestResult를 입력받아 분석하고, 분석 결과를 STT Analysis Reopistory에 저장
         """
         id = testResult.id
 
+        # select highest matcehd accuracy
         hm_expected, hm_actual, accuracy = sttAnalysisTool.calculateSTTAccuracy(expectedList = testResult.expected,
                                                                                 actualList = testResult.actual)
-        categories = sttAnalysisTool.categorizeSTT(targetList = [hm_expected, hm_actual],
-                                                    filter = category_filter)
+        categories = sttAnalysisTool.categorizeSTT(expected= hm_expected,
+                                                    actual= hm_actual,
+                                                    categoryFilter = categoryFilter)
 
         # init.
-        if not self._analysisRepo.get(id):
-            self._analysisRepo[id] = {}
-            sttAnalysisData:dict = self._analysisRepo[id]
+        if not self._analysisResultDict.get(id):
+            self._analysisResultDict[id] = {}
+            sttAnalysisData:dict = self._analysisResultDict[id]
             sttAnalysisData['source'] = testResult.source
             sttAnalysisData['statics'] = {}
         
-        sttAnalysisData:dict = self._analysisRepo[id]
+        sttAnalysisData:dict = self._analysisResultDict[id]
         statics:dict = sttAnalysisData['statics']
         statics[testResult.service] = STTAnalysisData(expected = hm_expected,
                                                             actual = hm_actual,
                                                             accuracy = accuracy,
                                                             categories = categories)
         
-        # if not statics.get(testResult.service):
-        #     statics[testResult.service] = STTAnalysisData(expected = hm_expected,
-        #                                                     actual = hm_actual,
-        #                                                     accuracy = accuracy,
-        #                                                     categories = self._categorize(targetList = [hm_expected, hm_actual],
-        #                                                                                     filter = category_filter))
-
-
-        #     sttAnalysisData = self._analysisRepo[id] = STTAnalysisData()
-        #     sttAnalysisData
-        #     sttAnalysisData.source = testResult.source
-
-        # sttAnalysisData:STTAnalysisData = self._analysisRepo[id]
-        # sttAnalysisData.expected[testResult.service] = hm_expected
-        # sttAnalysisData.actual[testResult.service] = testResult.actual
-
-        ####### +) acc 필터에따라 어떤 정확도 넣을지 추가
-        # sttAnalysisData.addCategories(testResult.categories)
-        # sttAnalysisData.accuracy[testResult.service] = testResult.accuracy
-
-        # self._analysisRepo[id] = sttAnalysisData
 
     def _categorize(self, targetList, filter:list=None):
         categorySet = set()
@@ -120,16 +101,12 @@ class STTAnalysisRepository:
             if not len(categorySet):
                 categorySet.add('NC')   # Not Classified
 
-
-            # @@@@@@@@ what about empty
-
         return list(categorySet)
 
 
-        # def addCategories(self, categories):
-    #     for ct in categories:
-    #         self._categories.add(ct)
-    # _filter = filter if filter else ['예약', '주차', '메뉴', '영업'] # default filter = ['NA', 'NC']
+    @property
+    def analysisResultDict(self):
+        return self._analysisResultDict
         
 
 class STTAnalysisData:

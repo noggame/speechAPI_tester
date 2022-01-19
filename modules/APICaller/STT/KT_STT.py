@@ -56,35 +56,37 @@ class KT_STT(APICaller):
         with open(_targetFile, mode='rb') as file:
             audio_data = file.read()
             result_json:dict = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
-            # result_json = json.loads(kt_response)
+            logging.info(f'response of kt_stt = {result_json}')
+
             if isstring(result_json):
                 result_json = json.loads(result_json)
-
             
             if not result_json or result_json.get('statusCode') != 200:
                 logging.exception(f'[Exception] {__class__.__name__} - None Transaction id')
                 logging.exception(result_json)
-                return
+                return None
 
-            try:
-                # request transaction_id
-                result_array = result_json.get("result")
-                transaction_id = json.loads(result_array[0]).get("transactionId")
-                time.sleep(3)
+            # request transaction_id
+            result_array = result_json.get("result")
+            transaction_id = json.loads(result_array[0]).get("transactionId")
+            logging.info(f'transaction_id = {transaction_id}')
+            time.sleep(3)
 
-                # request stt_data from transaction_id
-                query_result_json = kt_sttClient.querySTT(transaction_id)
+            # request stt_data from transaction_id
+            query_result_json = kt_sttClient.querySTT(transaction_id)
+            logging.info(f'query_result_json = {query_result_json}')
 
-                # parse stt_data
-                if query_result_json.get('statusCode') == 200 and query_result_json.get('sttStatus') == 'completed':
-                    jsonResult = query_result_json.get('sttResults')
-                    if jsonResult:
-                        for eachResult in jsonResult:
-                            sttResult.append(eachResult['text'])
-                    else:
-                        logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
+            if not query_result_json:
+                logging.exception(f'[Exception] {__class__.__name__} - None response data')
+                return None
 
-            except SyntaxError as se:
-                logging.exception(f'[Exception] {__class__.__name__} - parsing exception : {se}')
+            # parse stt_data
+            if query_result_json.get('statusCode') == 200 and query_result_json.get('sttStatus') == 'completed':
+                jsonResult = query_result_json.get('sttResults')
+                if jsonResult:
+                    for eachResult in jsonResult:
+                        sttResult.append(eachResult['text'])
+                else:
+                    logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
 
         return sttResult

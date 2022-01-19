@@ -9,8 +9,8 @@ from modules.APICaller.STT.Kakao_STT import Kakao_STT
 
 from modules.TestController import TestController
 
-logging.basicConfig(filename=f'{os.getcwd()}/logs/result_test_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
-                    level=logging.INFO,
+logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+                    level=logging.DEBUG,
                     format='%(asctime)s %(message)s')
 
 ### TestData (AIHub / Clova)
@@ -33,9 +33,14 @@ tc.add_STT_TestData(clvp)
 tc.add_STT_API(ktapi)
 tc.add_STT_API(kakaoapi)
 
-sttResultList = tc.startSTTRequest(limit=2, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log')
-analysisResultList = tc.startAnalysisSTTResult(filter=['예약', '주차', '메뉴', '영업'],
-                                            sttResultData = sttResultList,
-                                            # file = f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log',
-                                            record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d")}.log')
+
+### STT API 호출 및 결과 저장
+sttResultList = tc.startSTTRequest(record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log')
+# sttResultList = tc.startSTTRequest(limit=5, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}.log')
+
+### 테스트 결과 파일 불러와 결과 도출
+# analysisResultList = tc.startAnalysisSTTResult(categoryFilter=['예약', '주차', '메뉴', '영업'],
+#                                             # sttResultData = sttResultList,
+#                                             file = f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}_2000.log',
+#                                             record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d")}.log')
 
