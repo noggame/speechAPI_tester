@@ -62,9 +62,10 @@ class STTAnalysisRepository:
         """
         id = testResult.id
 
-        # select highest matcehd accuracy
+        # Accuracy
         hm_expected, hm_actual, accuracy = sttAnalysisTool.calculateSTTAccuracy(expectedList = testResult.expected,
                                                                                 actualList = testResult.actual)
+        # Categories
         categories = sttAnalysisTool.categorizeSTT(expected= hm_expected,
                                                     actual= hm_actual,
                                                     categoryFilter = categoryFilter)

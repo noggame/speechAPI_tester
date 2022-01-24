@@ -23,8 +23,10 @@ ktapi = KT_STT(options={
     'client_key':'d8613f5b-43f1-5a11-b183-35261da543a6',
     'client_secret':'693bc75a1bf4f80d2636372c02b64d0c5a636757e1b9ae6ddfd5c209f9d32892'
 })
+# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
+#                     key='KakaoAK 697f04dd01214c2a532634d6df4d1126')
 kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
-                    key='KakaoAK 697f04dd01214c2a532634d6df4d1126')
+                    key='KakaoAK ccde4280f6ed1c14520642b03f96664c')
 
 ### Test TestController
 tc = TestController()

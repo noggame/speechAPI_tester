@@ -70,7 +70,7 @@ class KT_STT(APICaller):
             result_array = result_json.get("result")
             transaction_id = json.loads(result_array[0]).get("transactionId")
             logging.info(f'transaction_id = {transaction_id}')
-            time.sleep(3)
+            time.sleep(2)
 
             # request stt_data from transaction_id
             query_result_json = kt_sttClient.querySTT(transaction_id)

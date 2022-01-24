@@ -38,6 +38,7 @@ class Kakao_STT(APICaller):
                 return ttsResultList
             except:
                 logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found')
+                ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
         elif response.status_code == 401:
             logging.exception(f'[Exception] {__class__.__name__} - un-registered ips. reponse = {response}')
             return None

@@ -28,7 +28,7 @@ class TestController:
         for eachDP in self._dataList:
             dp:AIDataParser = eachDP
 
-            for item in dp.getTestDataList(limit=limit):
+            for item in dp.getTestDataList(limit=limit)[11000:]:
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
