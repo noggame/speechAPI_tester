@@ -4,7 +4,8 @@ from data.TestData import TestData
 from data.TestResult import TestResult
 from modules.AIDataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
-from data.AnalysisRepository import STTAnalysisData, STTAnalysisRepository
+from data.AnalysisRepository import STTAnalysisRepository
+from modules.AccuracyFilter import AccuracyFilter as AF
 import json
 
 
@@ -28,7 +29,15 @@ class TestController:
         for eachDP in self._dataList:
             dp:AIDataParser = eachDP
 
-            for item in dp.getTestDataList(limit=limit)[11000:]:
+            # 완료
+            # for item in dp.getTestDataList(limit=limit)[21500:22900]:     # 07
+            # for item in dp.getTestDataList(limit=limit)[22900:24000]:     # 08
+            # for item in dp.getTestDataList(limit=limit)[24000:25100]:     # 09
+            # for item in dp.getTestDataList(limit=limit)[25100:26600]:     # 10
+
+            # 진행중
+
+            for item in dp.getTestDataList(limit=limit)[26500:]:
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -66,15 +75,13 @@ class TestController:
         return _trList
 
 
-    def startAnalysisSTTResult(self, categoryFilter:list=None, sttResultData:list=None, file:str=None, record:str=None):
-        _categoryFilter = categoryFilter if categoryFilter else ['예약', '주차', '메뉴', '영업'] # default filter = ['NA', 'NC']
-        _testResultList = []
+    def startAnalysisSTTResult(self, accuracyFilter:list, categoryFilter:list=None, sttResultData:list=None, file:str=None, record:str=None):
+
         _analysisRepo = STTAnalysisRepository()
-        # self._staticTool = StaticTool(categoryList=['예약', '주차', '메뉴', '영업'])
-        _file_record = open(record, 'w')
 
 
         # get TestResult list.
+        _testResultList = []
         if sttResultData:       # list input (directly)
             _testResultList = sttResultData
         elif file:              # file input
@@ -97,93 +104,65 @@ class TestController:
 
 
         # get AnalysisResult list.
+        _categoryFilter = categoryFilter if categoryFilter else []
         for eachTestResult in _testResultList:
+            _analysisRepo.addAnalysisData(testResult=eachTestResult,
+                                        accuracyFilter=accuracyFilter,
+                                        categoryFilter=_categoryFilter)
+        # Record Analysis data
+        if record:
+            file_record = open(record, 'w')
+            file_record.write(str(_analysisRepo))
 
-            tr:TestResult = eachTestResult
-            
-            _analysisRepo.addAnalysisData(testResult=tr, categoryFilter=_categoryFilter) # accuracy_filter=_filter
 
         self._getStatics(_analysisRepo)
-        # print(_analysisRepo)
 
 
     def _getStatics(self, analysisRepo:STTAnalysisRepository):
-        # get Statics.
 
-        ar = analysisRepo.analysisResultDict
+        staticRepo = {'total':0}
+        _ar:dict = json.loads(str(analysisRepo).replace("'", "\""))
 
-        categoryCounter = {}
-        categoryCounter['total'] = 0
-        categoryCounter['NA'] = 0
-        accuracyCounter = {}
-        accuracyCounter['total'] = {}
-
-
-        for arKey in ar.keys():    # id, source, statics
-            id:dict = ar[arKey]
-            staticsInfo:dict = id['statics']
-
+        # count StaticInfo
+        for sample in _ar.values():
+            staticRepo[acc_name]['total'] += 1
             
-            # get staticInfo for each service
-            eachStaticInfo = {}
-            categorySet = set()
-            for stKey in staticsInfo.keys():
-                service:STTAnalysisData = staticsInfo[stKey]
-                eachStaticInfo[stKey] = service
+            for eachStatic in sample['statics']:
+                service = eachStatic['service']
+                categories = eachStatic['categories']
+                acc_name = eachStatic['accuracy']['name']
+                acc_rate = eachStatic['accuracy']['value']
 
-                for ct in service.categories:
-                    categorySet.add(ct)
-
-
-            # statics for each category
-            categoryCounter['total'] += 1
-            if 'NA' in categorySet:
-                categoryCounter['NA'] += 1
-            else:
-                for ct in categorySet:
-                    # counting categories
-                    if not categoryCounter.get(ct):
-                        categoryCounter[ct] = 0
-                    categoryCounter[ct] += 1
-
-                    if not accuracyCounter.get(ct):
-                        accuracyCounter[ct] = {}
-
-                    for siKey in eachStaticInfo.keys():
-                        service:STTAnalysisData = eachStaticInfo[siKey]
-
-                        # 카테고리 & 서비스별 정확도 계산
-                        accuracyForEachCategory:dict = accuracyCounter[ct]
-                        if not accuracyForEachCategory.get(siKey):
-                            accuracyForEachCategory[siKey] = 0
-                        accuracyForEachCategory[siKey] += service.accuracy
-
-                        # 서비스별 정확도 계산
-                        accuracyCounterTotal:dict = accuracyCounter['total']
-                        if not accuracyCounterTotal.get(siKey):
-                            accuracyCounterTotal[siKey] = 0
-                        accuracyCounterTotal[siKey] += service.accuracy
-
-        print(accuracyCounter)
-        print(categoryCounter)
-
-        # average
-        avgAccuracy = {}
-        for acKey in accuracyCounter.keys():
-
-            # init. category
-            if not avgAccuracy.get(acKey):
-                avgAccuracy[acKey] = {}
-            
-            serviceAccuracyDict:dict = accuracyCounter[acKey]
-            for saKey in serviceAccuracyDict.keys():
-
-                avgSvcAccuracy:dict = avgAccuracy[acKey]
-                if not avgSvcAccuracy.get(saKey):
-                    avgSvcAccuracy[saKey] = round(serviceAccuracyDict[saKey]/categoryCounter[acKey], 2) if acKey != 'total' else round(serviceAccuracyDict[saKey]/(categoryCounter[acKey]-categoryCounter['NA']), 2)
+                # create AccuracyType (ex_ [EXP_BASED, WER, ...])
+                if acc_name not in staticRepo:
+                    staticRepo[acc_name] = {}
                 
-        print()
-        for aaKey in avgAccuracy.keys():
-            print(f'{aaKey} = {avgAccuracy[aaKey]}')
+                # new Service (ex_ KT, KAKAO)
+                if service not in staticRepo[acc_name]:
+                    staticRepo[acc_name][service] = {}
+                
+                service_in_repo:dict = staticRepo[acc_name][service]
+                for ct in categories:
+                    # new Category (ex_ ['NA', 'NC', '예약', ...])
+                    if ct not in service_in_repo:
+                        service_in_repo[ct] = {}
+                        service_in_repo[ct]['sample'] = 0
+                        service_in_repo[ct]['acc_sum'] = 0
+
+                    service_in_repo[ct]['sample'] += 1
+                    service_in_repo[ct]['acc_sum'] += acc_rate
+
+        # print Statics
+        self._parseStaticRepo(staticRepository = staticRepo)
 
 
+    def _parseStaticRepo(self, staticRepository:dict):
+        for accuracyType, static in staticRepository.items():
+            
+
+
+        print(staticRepository)
+
+
+
+   

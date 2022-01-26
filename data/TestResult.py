@@ -14,6 +14,20 @@ class TestResult:
         # self._categories = categories
 
     def __str__(self) -> str:
+        #####   Format   #####
+        # {
+        #    "id":"41_0610_819_0_10019_05",
+        #    "source":"/mnt/d/Workspace/python/speechAPI_tester/sample/clova_dataset/wavs_train/41_0610_819_0_10019_05.wav",
+        #    "service":"KT_STT",
+        #    "expected":[
+        #       "20명 들어갈 자리 있나요?"
+        #    ],
+        #    "actual":[
+        #       "피곤할 짜리 있나요"
+        #    ]
+        # }
+
+
         result_json = '{'                                   # open json
         result_json += f'"id": "{self.id}"'
         result_json += f', "source": "{self.source}"'
