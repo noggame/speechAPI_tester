@@ -1,0 +1,20 @@
+from pydub import AudioSegment
+import json
+
+def divideWav():
+    with open("data/DKSR20000890.json", "r", encoding="utf8") as f:
+        contents = f.read()
+        json_data = json.loads(contents)
+
+        for i in range(len(json_data["utterance"])):
+            audio = AudioSegment.from_wav("data/DKSR20000890.wav")
+            id = json_data["utterance"][i]["id"]
+            start = json_data["utterance"][i]["start"] * 1000
+            end = json_data["utterance"][i]["end"] * 1000
+            print(f'id:{id} / start:{start} / end:{end}')
+
+            new_audio = audio[start:end]
+            new_audio.export(f'data/result/{id}.wav', format="wav")
+
+if __name__ == '__main__':
+    divideWav()
