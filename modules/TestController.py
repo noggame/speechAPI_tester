@@ -36,8 +36,9 @@ class TestController:
             # for item in dp.getTestDataList(limit=limit)[25100:26600]:     # 10
 
             # 진행중
+            # for item in dp.getTestDataList(limit=limit)[26500:]:
 
-            for item in dp.getTestDataList(limit=limit)[26500:]:
+            for item in dp.getTestDataList(limit=limit)[:]:
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -109,23 +110,25 @@ class TestController:
             _analysisRepo.addAnalysisData(testResult=eachTestResult,
                                         accuracyFilter=accuracyFilter,
                                         categoryFilter=_categoryFilter)
+
         # Record Analysis data
         if record:
             file_record = open(record, 'w')
             file_record.write(str(_analysisRepo))
+            file_record.close()
 
 
-        self._getStatics(_analysisRepo)
+        self._getStatics(analysisRepo=_analysisRepo, record=record)
 
 
-    def _getStatics(self, analysisRepo:STTAnalysisRepository):
+    def _getStatics(self, analysisRepo:STTAnalysisRepository, record:str=None):
 
-        staticRepo = {'total':0}
+        staticRepo = {'total': 0}
         _ar:dict = json.loads(str(analysisRepo).replace("'", "\""))
 
         # count StaticInfo
         for sample in _ar.values():
-            staticRepo[acc_name]['total'] += 1
+            staticRepo['total'] += 1
             
             for eachStatic in sample['statics']:
                 service = eachStatic['service']
@@ -152,16 +155,40 @@ class TestController:
                     service_in_repo[ct]['sample'] += 1
                     service_in_repo[ct]['acc_sum'] += acc_rate
 
+            
         # print Statics
         self._parseStaticRepo(staticRepository = staticRepo)
 
+        # # Record Analysis data
+        # if record:
+        #     file_record = open(record, 'w')
+        #     file_record.write(str(_analysisRepo))
+        #     file_record.close()
+
 
     def _parseStaticRepo(self, staticRepository:dict):
-        for accuracyType, static in staticRepository.items():
-            
+        result = ''
 
+        for sKey, sValue in staticRepository.items():
+            if sKey == 'total':
+                result += '========================\n'
+                result += 'total sample = {}\n'.format(sValue)
+                result += '========================\n'
+            else:
+                result += '{} 정확도 측정 결과\n'.format(sKey)
+                for serviceType, categoryInfo in sValue.items():               # CMP Method
+                    result += '{0:<15}  '.format(serviceType)
 
-        print(staticRepository)
+                    for categoryType, staticInfo in categoryInfo.items():     # Service
+                        result += '{} : {} ({})'.format(categoryType, round(staticInfo['acc_sum']/staticInfo['sample'], 2), staticInfo['sample'])
+                        result += '{0:<7}'.format(' ')
+
+                    result += '\n'
+                result += '------------------------\n'
+
+        print(result)
+
+        # print(staticRepository)
 
 
 

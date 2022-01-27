@@ -24,7 +24,7 @@ logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("
 #     'client_key':'d8613f5b-43f1-5a11-b183-35261da543a6',
 #     'client_secret':'693bc75a1bf4f80d2636372c02b64d0c5a636757e1b9ae6ddfd5c209f9d32892'
 # })
-# SDH
+## SDH
 # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize',
 #                     key='KakaoAK 697f04dd01214c2a532634d6df4d1126')
 ## KJH
@@ -49,8 +49,7 @@ tc = TestController()
 analysisResultList = tc.startAnalysisSTTResult(accuracyFilter=[AccuracyFilter.EXP_BASED, AccuracyFilter.WER],
                                             categoryFilter=['예약', '주차', '메뉴', '영업'],
                                             # sttResultData = sttResultList,
-                                            # file = f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d")}_2000.log',
-                                            # record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d")}.log')
-                                            file = f'{os.getcwd()}/logs/0_end/10_result_stt_20220126_091313_1500.log',
+                                            # file = f'{os.getcwd()}/logs/result_stt_20220127_112117.log',
+                                            file = f'{os.getcwd()}/logs/result_stt_20220127_130943.log',
                                             record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 
