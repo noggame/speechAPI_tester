@@ -3,7 +3,7 @@ from typing import List
 
 
 class APICaller:
-    def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
+    def __init__(self, url, key, targetFile, options=None) -> None:
         self._url = url
         self._key = key
         self._targetFile = targetFile
@@ -41,7 +41,7 @@ class APICaller:
     def targetFile(self, targetFile):
         self._targetFile = targetFile
 
-    def request(self, url=None, key=None, targetFile=None, options=None) -> List:
+    def request(self, url, key, targetFile, options=None) -> List:
         result = [str]
 
         # update params.

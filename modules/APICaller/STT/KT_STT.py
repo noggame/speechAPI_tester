@@ -26,9 +26,9 @@ class KT_STT(APICaller):
                 _options['client_key'] = options['client_key']
                 _options['client_secret'] = options['client_secret']
             else:
-                _options['client_id'] = self.options['client_id']            # "3fd7261c-7d08-487b-a104-b867919e497b"
-                _options['client_key'] = self.options['client_key']          # "d8613f5b-43f1-5a11-b183-35261da543a6"
-                _options['client_secret'] = self.options['client_secret']    # "693bc75a1bf4f80d2636372c02b64d0c5a636757e1b9ae6ddfd5c209f9d32892"
+                _options['client_id'] = self.options['client_id']
+                _options['client_key'] = self.options['client_key']
+                _options['client_secret'] = self.options['client_secret']
         except TypeError:
             logging.error(f'[ERR] {__class__.__name__} - wrong options input in {__name__}')
 
@@ -66,19 +66,29 @@ class KT_STT(APICaller):
                 logging.exception(result_json)
                 return None
 
+
             # request transaction_id
             result_array = result_json.get("result")
             transaction_id = json.loads(result_array[0]).get("transactionId")
             logging.info(f'transaction_id = {transaction_id}')
-            time.sleep(2)
+
 
             # request stt_data from transaction_id
             query_result_json = kt_sttClient.querySTT(transaction_id)
             logging.info(f'query_result_json = {query_result_json}')
 
-            if not query_result_json:
-                logging.exception(f'[Exception] {__class__.__name__} - None response data')
-                return None
+
+            # waiting for request
+            timeout = 5
+            while not query_result_json or query_result_json.get('sttStatus') == 'processing':
+                query_result_json = kt_sttClient.querySTT(transaction_id)
+                logging.info(f'waiting,,, query_result_json = {query_result_json}')
+                if timeout > 0:
+                    timeout -= 1
+                    time.sleep(1)
+                else:
+                    logging.exception(f'[Exception] {__class__.__name__} - timeout - response = {query_result_json}')
+                    return None
 
             # parse stt_data
             if query_result_json.get('statusCode') == 200 and query_result_json.get('sttStatus') == 'completed':
@@ -88,5 +98,7 @@ class KT_STT(APICaller):
                         sttResult.append(eachResult['text'])
                 else:
                     logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
+            else:
+                logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
 
         return sttResult
