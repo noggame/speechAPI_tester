@@ -18,6 +18,7 @@ class Kakao_STT(APICaller):
             'Content-Type': 'application/octet-stream',
             'Authorization': _key
         }
+        ttsResultList = []
 
         try:
             wav = open(_targetFile, 'rb')
@@ -30,22 +31,27 @@ class Kakao_STT(APICaller):
             logging.exception(f'[Exception] {__class__.__name__} - {ce}')
 
         if response.status_code == 200:
-            try:
-                ttsResultList = []
-                result_data = response.text[response.text.index('{"type":"finalResult"'):response.text.rindex('}')+1]   # response 데이터 파싱 (type=finalResult인 json데이터의 value값)
-                ttsResultList.append(json.loads(result_data)['value'])
+
+            s_idx = response.text.find('{"type":"finalResult"')
+
+            if s_idx > -1:
+                e_idx = response.text.rindex('}')+1
                 
-                return ttsResultList
-            except:
+                finalResult = json.loads(response.text[s_idx:e_idx])['value']
+                ttsResultList.append(finalResult)
+
+            else:   # not found 'finalResult'
+                ttsResultList.append("")
                 logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found')
-                ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
+
         elif response.status_code == 401:
             logging.exception(f'[Exception] {__class__.__name__} - un-registered ips. reponse = {response}')
             return None
         else:
             logging.exception(f'[Exception] {__class__.__name__} - not-expected exception occured. response = {response}')
             return None
+        ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
             
-        return response
+        return ttsResultList
 
 

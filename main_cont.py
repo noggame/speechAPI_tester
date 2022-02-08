@@ -14,8 +14,8 @@ logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("
                     format='%(asctime)s %(message)s')
 
 ## set Sample
-aihp = AIHubParser(f'{os.getcwd()}/sample/sample_100')        # AIHub
-# clvp = ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset')   # ClovaAI
+# aihp = AIHubParser(f'{os.getcwd()}/sample/sample_100')        # AIHub
+clvp = ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset')   # ClovaAI
 
 ## set API
 # KT
@@ -28,18 +28,19 @@ ktapi = KT_STT(options={
 # KAKAO
 # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK 697f04dd01214c2a532634d6df4d1126') # SDH
 kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK ccde4280f6ed1c14520642b03f96664c')   # KJH
+# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK a6d5effd95f8bfa5c5b31c982015dfd4')   # YJE
 
 ### Test TestController
 tc = TestController()
-tc.add_STT_TestData(aihp)
-# tc.add_STT_TestData(clvp)
+# tc.add_STT_TestData(aihp)
+tc.add_STT_TestData(clvp)
 tc.add_STT_API(ktapi)
 tc.add_STT_API(kakaoapi)
 
 
 ### STT API 호출 및 결과 저장
-# sttResultList = tc.startSTTRequest(record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')    # 전체 데이터 테스트
-sttResultList = tc.startSTTRequest(limit=10, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log') # 데이터 개수 제한
+sttResultList = tc.startSTTRequest(record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')    # 전체 데이터 테스트
+# sttResultList = tc.startSTTRequest(limit=10, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log') # 데이터 개수 제한
 
 ### 테스트 결과 파일 불러와 결과 도출
 # analysisResultList = tc.startAnalysisSTTResult(categoryFilter=['예약', '주차', '메뉴', '영업'],

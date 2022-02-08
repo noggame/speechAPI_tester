@@ -1,6 +1,5 @@
 from data.TestResult import TestResult
 import re
-import logging
 
 
 def calculateSTTAccuracy(expectedList:list, actualList:list) -> list:
@@ -23,8 +22,8 @@ def calculateSTTAccuracy(expectedList:list, actualList:list) -> list:
     return [hm_expected, hm_actual, accuracy]
 
 
-def calculateWER(expectedList:list, actualList:list) -> list:
-    final_wer = 100
+def calculateWERAccuracy(expectedList:list, actualList:list) -> list:
+    final_wer = 0
     hm_expected = ''    # highest matching
     hm_actual = ''
 
@@ -35,9 +34,10 @@ def calculateWER(expectedList:list, actualList:list) -> list:
             exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
             act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
 
-            cur_wer = round(countLevenshtein(exp_sub, act_sub)*100/len(exp_sub))
+            # cur_wer = round(countLevenshtein(exp_sub, act_sub)*100/len(exp_sub), 2)
+            cur_wer = (1-countLevenshtein(exp_sub, act_sub)/len(exp_sub))*100
 
-            if cur_wer < final_wer:
+            if cur_wer > final_wer:
                 final_wer = cur_wer
                 hm_expected = exp
                 hm_actual = act

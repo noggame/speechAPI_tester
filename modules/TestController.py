@@ -34,11 +34,13 @@ class TestController:
             # for item in dp.getTestDataList(limit=limit)[22900:24000]:     # 08
             # for item in dp.getTestDataList(limit=limit)[24000:25100]:     # 09
             # for item in dp.getTestDataList(limit=limit)[25100:26600]:     # 10
+            # for item in dp.getTestDataList(limit=limit)[26400:28900]:     # 11
+            # for item in dp.getTestDataList(limit=limit)[28800:30100]:     # 12
+            # for item in dp.getTestDataList(limit=limit)[30000:32500]:     # 13
+
 
             # 진행중
-            # for item in dp.getTestDataList(limit=limit)[26500:]:
-
-            for item in dp.getTestDataList(limit=limit)[:]:
+            for item in dp.getTestDataList(limit=limit)[32400:35000]:       # 2500개 진행됨 # 14
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -89,6 +91,7 @@ class TestController:
             file_target = open(file, 'r') if file else None
 
             for tr in file_target.readlines():
+                # print(tr)
                 tr_json:dict = json.loads(tr)
                 if type(tr_json) != dict:
                     logging.exception(f'[Exception] {__class__.__name__}:{__name__} - result data is not json format')
@@ -124,6 +127,7 @@ class TestController:
     def _getStatics(self, analysisRepo:STTAnalysisRepository, record:str=None):
 
         staticRepo = {'total': 0}
+        # print(str(analysisRepo).replace("'", "\""))
         _ar:dict = json.loads(str(analysisRepo).replace("'", "\""))
 
         # count StaticInfo
@@ -180,7 +184,7 @@ class TestController:
                     result += '{0:<15}  '.format(serviceType)
 
                     for categoryType, staticInfo in categoryInfo.items():     # Service
-                        result += '{} : {} ({})'.format(categoryType, round(staticInfo['acc_sum']/staticInfo['sample'], 2), staticInfo['sample'])
+                        result += '{} : {} % ({})'.format(categoryType, str(round(staticInfo['acc_sum']/staticInfo['sample'], 2)).ljust(5), staticInfo['sample'])
                         result += '{0:<7}'.format(' ')
 
                     result += '\n'

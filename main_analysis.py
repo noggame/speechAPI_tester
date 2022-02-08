@@ -50,6 +50,6 @@ analysisResultList = tc.startAnalysisSTTResult(accuracyFilter=[AccuracyFilter.EX
                                             categoryFilter=['예약', '주차', '메뉴', '영업'],
                                             # sttResultData = sttResultList,
                                             # file = f'{os.getcwd()}/logs/result_stt_20220127_112117.log',
-                                            file = f'{os.getcwd()}/logs/result_stt_20220127_130943.log',
+                                            file = f'{os.getcwd()}/logs/0_end/combined_3_16600.txt',
                                             record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 
