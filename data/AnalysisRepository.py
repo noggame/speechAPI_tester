@@ -1,8 +1,6 @@
 from data.TestResult import TestResult
-from modules.AccuracyFilter import AccuracyFilter
-import modules.Analysis.AnalysisToolForSTT as sttAnalysisTool
-import re
-import json
+from modules.Accuracy.AccuracyFilter import AccuracyFilter
+import modules.Accuracy.STTAccuracyTool as sat
 # from data.TestResultUnified import TestResultUnified
 
 class STTAnalysisRepository:
@@ -69,9 +67,9 @@ class STTAnalysisRepository:
         staticInfoList = []
         for accFunc in accuracyFilter:
             hm_expected, hm_actual, accuracy = accFunc(expectedList = testResult.expected, actualList = testResult.actual)
-            categories = sttAnalysisTool.categorizeSTT(expected= hm_expected,
-                                                    actual= hm_actual,
-                                                    categoryFilter = categoryFilter)
+            categories = sat.categorizeSTT(expected = hm_expected,
+                                            actual  = hm_actual,
+                                            categoryFilter  = categoryFilter)
             
             # get Filter Name (Key)
             filterName = None
@@ -97,36 +95,37 @@ class STTAnalysisRepository:
         # store static data
         if testResult.id not in self._analysisResultDict:
             eachId = self._analysisResultDict[testResult.id] = {}   # set id
-            eachId['source'] = testResult.source    # set source
-            eachId['statics'] = []      # init. static
+            eachId['source'] = testResult.source                    # set source
+            eachId['statics'] = []                                  # init. static
         
         statics:list = self._analysisResultDict[testResult.id]['statics']
         statics.extend(staticInfoList)
 
 
-    def _categorize(self, targetList, filter:list=None):
-        categorySet = set()
+    # @deprecated   > use STTAccuracyTool.categorizeSTT(...)
+    # def _categorize(self, targetList, filter:list=None):
+    #     categorySet = set()
 
-        for target in targetList:
-            # except [number & digit]
-            if re.findall('[a-zA-Z0-9]+', target):
-                return ['NA']   # Not Applicable
+    #     for target in targetList:
+    #         # except [number & digit]
+    #         if re.findall('[a-zA-Z0-9]+', target):
+    #             return ['NA']   # Not Applicable
 
-            # classify category
-            for ct in filter:
-                if re.search(ct, target):
-                    categorySet.add(ct)
+    #         # classify category
+    #         for ct in filter:
+    #             if re.search(ct, target):
+    #                 categorySet.add(ct)
             
-            # not matched any category
-            if not len(categorySet):
-                categorySet.add('NC')   # Not Classified
+    #         # not matched any category
+    #         if not len(categorySet):
+    #             categorySet.add('NC')   # Not Classified
 
-        return list(categorySet)
+    #     return list(categorySet)
 
 
 
         
-
+# @deprecated
 # class STTAnalysisData:
 
 #     def __init__(self, expected, actual, accuracy, categories) -> None:

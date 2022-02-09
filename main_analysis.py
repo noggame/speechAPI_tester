@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
-from modules.AccuracyFilter import AccuracyFilter
+from modules.Accuracy.AccuracyFilter import AccuracyFilter
 
 from modules.TestController import TestController
 
@@ -47,9 +47,9 @@ tc = TestController()
 
 ### 테스트 결과 파일 불러와 결과 도출
 analysisResultList = tc.startAnalysisSTTResult(accuracyFilter=[AccuracyFilter.EXP_BASED, AccuracyFilter.WER],
-                                            categoryFilter=['예약', '주차', '메뉴', '영업'],
+                                            categoryFilter=['예약', '주차', '메뉴', '영업', '시간'],
                                             # sttResultData = sttResultList,
                                             # file = f'{os.getcwd()}/logs/result_stt_20220127_112117.log',
-                                            file = f'{os.getcwd()}/logs/0_end/combined_3_16600.txt',
+                                            file = f'{os.getcwd()}/logs/0_end/combined_14.txt',
                                             record = f'{os.getcwd()}/logs/analysis_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 

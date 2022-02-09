@@ -5,7 +5,7 @@ from data.TestResult import TestResult
 from modules.AIDataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
 from data.AnalysisRepository import STTAnalysisRepository
-from modules.AccuracyFilter import AccuracyFilter as AF
+from modules.Accuracy.AccuracyFilter import AccuracyFilter as AF
 import json
 
 
@@ -34,13 +34,16 @@ class TestController:
             # for item in dp.getTestDataList(limit=limit)[22900:24000]:     # 08
             # for item in dp.getTestDataList(limit=limit)[24000:25100]:     # 09
             # for item in dp.getTestDataList(limit=limit)[25100:26600]:     # 10
-            # for item in dp.getTestDataList(limit=limit)[26400:28900]:     # 11
-            # for item in dp.getTestDataList(limit=limit)[28800:30100]:     # 12
-            # for item in dp.getTestDataList(limit=limit)[30000:32500]:     # 13
+            # for item in dp.getTestDataList(limit=limit)[26600:28900]:     # 11
+            # for item in dp.getTestDataList(limit=limit)[28900:30100]:     # 12
+            # for item in dp.getTestDataList(limit=limit)[30100:32500]:     # 13
+            # for item in dp.getTestDataList(limit=limit)[32500:35000]:     # 14
 
 
             # 진행중
-            for item in dp.getTestDataList(limit=limit)[32400:35000]:       # 2500개 진행됨 # 14
+            # for item in dp.getTestDataList(limit=limit)[35000:37500]:       # 
+            for item in dp.getTestDataList(limit=limit)[37500:40000]:       # 
+            # for item in dp.getTestDataList(limit=limit)[:59662]:     # TOTAL_SIZE
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -126,11 +129,30 @@ class TestController:
 
     def _getStatics(self, analysisRepo:STTAnalysisRepository, record:str=None):
 
+        _ar:dict = json.loads(str(analysisRepo).replace("\'", "\""))
         staticRepo = {'total': 0}
-        # print(str(analysisRepo).replace("'", "\""))
-        _ar:dict = json.loads(str(analysisRepo).replace("'", "\""))
+        # staticRepo = {
+        #    "total":35000,
+        #    "EXP_BASED":{
+        #       "KT_STT":{
+        #          "NC":{
+        #             "sample":15274,
+        #             "acc_sum":1188084.430000014
+        #          },
+        #          "NA":{
+        #             "sample":4855,
+        #             "acc_sum":291369.5600000018
+        #          }, ...
+        #       },
+        #       "Kakao_STT":{...}
+        #    },
+        #    "WER":{
+        #       "KT_STT":{...},
+        #       "Kakao_STT":{...}
+        #    }
+        # }
 
-        # count StaticInfo
+        # Statics
         for sample in _ar.values():
             staticRepo['total'] += 1
             
@@ -160,14 +182,14 @@ class TestController:
                     service_in_repo[ct]['acc_sum'] += acc_rate
 
             
-        # print Statics
-        self._parseStaticRepo(staticRepository = staticRepo)
-
-        # # Record Analysis data
+        ### Record
         # if record:
         #     file_record = open(record, 'w')
         #     file_record.write(str(_analysisRepo))
         #     file_record.close()
+
+        # print Statics
+        self._parseStaticRepo(staticRepository = staticRepo)
 
 
     def _parseStaticRepo(self, staticRepository:dict):
@@ -180,14 +202,24 @@ class TestController:
                 result += '========================\n'
             else:
                 result += '{} 정확도 측정 결과\n'.format(sKey)
-                for serviceType, categoryInfo in sValue.items():               # CMP Method
+                for serviceType, categoryInfo in sValue.items():               # Compare Method
                     result += '{0:<15}  '.format(serviceType)
+
+                    s_sum = 0
+                    s_sample = 0
 
                     for categoryType, staticInfo in categoryInfo.items():     # Service
                         result += '{} : {} % ({})'.format(categoryType, str(round(staticInfo['acc_sum']/staticInfo['sample'], 2)).ljust(5), staticInfo['sample'])
-                        result += '{0:<7}'.format(' ')
+                        result += '{0:<4}'.format(' ')
 
+                        # Not Applicable 제외한 전체 평균
+                        if categoryType != 'NA':
+                            s_sum += staticInfo['acc_sum']
+                            s_sample += staticInfo['sample']
+
+                    result += '전체평균 : {} %'.format(str(round(s_sum/s_sample, 2)).ljust(5))
                     result += '\n'
+
                 result += '------------------------\n'
 
         print(result)
