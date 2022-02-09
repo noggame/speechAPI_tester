@@ -1,9 +1,9 @@
 from enum import Enum
-import modules.Analysis.AnalysisToolForSTT as ast
+import modules.Accuracy.STTAccuracyTool as sat
 
 class AccuracyFilter(Enum):
-    EXP_BASED = ast.calculateSTTAccuracy
-    WER = ast.calculateWERAccuracy
+    EXP_BASED = sat.calculateSTTAccuracy
+    WER = sat.calculateWERAccuracy
 
 ### get all keys
 # [k for k in AccuracyFilter.__dict__.keys() if not k.startswith('_')]

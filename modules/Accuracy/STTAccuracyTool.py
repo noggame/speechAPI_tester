@@ -1,4 +1,3 @@
-from data.TestResult import TestResult
 import re
 
 
@@ -99,7 +98,7 @@ def categorizeSTT(expected:str, actual:str, categoryFilter:list=None):
     categorySet = set()
 
     # except [number & digit]
-    if re.findall('[a-zA-Z0-9]+', expected+actual) or len(actual) == 0:
+    if re.findall('[a-zA-Z0-9]+', expected + actual) or len(actual) == 0:
         return ['NA']   # Not Applicable
 
     # classify category
