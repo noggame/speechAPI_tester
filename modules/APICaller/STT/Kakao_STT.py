@@ -8,6 +8,22 @@ class Kakao_STT(APICaller):
     def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
         super().__init__(url, key, targetFile, options)
 
+    def _getJsonDataFromIndex(self, target:str, startIndex:int):
+        numOfBracket = 0
+        result = ''
+
+        for c in target[startIndex:]:
+            if c == '{':
+                numOfBracket += 1
+            elif c == '}':
+                numOfBracket -= 1
+            
+            result += c
+            if numOfBracket == 0:
+                return result
+
+        return 
+
     def request(self, url=None, key=None, targetFile=None, options=None) -> List:
         _url = url if url else self.url
         _key = key if key else self.key
@@ -31,21 +47,21 @@ class Kakao_STT(APICaller):
             logging.exception(f'[Exception] {__class__.__name__} - {ce}')
 
         if response.status_code == 200:
+            logging.info(f'[info] {__class__.__name__} - {response.text}')
 
-            s_idx = response.text.find('{"type":"finalResult"')
+            responseText = response.text
+            finalIndex = responseText.find('{"type":"finalResult"')
+            finalResult = self._getJsonDataFromIndex(responseText, finalIndex)
 
-            if s_idx > -1:
-                e_idx = response.text.rindex('}')+1
-                
-                finalResult = json.loads(response.text[s_idx:e_idx])['value']
-                ttsResultList.append(finalResult)
-
-            else:   # not found 'finalResult'
+            if not finalResult or finalIndex == -1:
                 ttsResultList.append("")
-                logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found')
+                logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found, response = {response}')
+            else:
+                ttsResultList.append(json.loads(finalResult)['value'])
+
 
         elif response.status_code == 401:
-            logging.exception(f'[Exception] {__class__.__name__} - un-registered ips. reponse = {response}')
+            logging.exception(f'[Exception] {__class__.__name__} - un-registered ips. response = {response}')
             return None
         else:
             logging.exception(f'[Exception] {__class__.__name__} - not-expected exception occured. response = {response}')

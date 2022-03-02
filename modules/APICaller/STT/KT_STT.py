@@ -64,7 +64,7 @@ class KT_STT(APICaller):
             if not result_json or result_json.get('statusCode') != 200:
                 logging.exception(f'[Exception] {__class__.__name__} - None Transaction id')
                 logging.exception(result_json)
-                return None
+                return sttResult
 
 
             # request transaction_id
@@ -79,7 +79,7 @@ class KT_STT(APICaller):
 
 
             # waiting for request
-            timeout = 5
+            timeout = 10
             while not query_result_json or query_result_json.get('sttStatus') == 'processing':
                 query_result_json = kt_sttClient.querySTT(transaction_id)
                 logging.info(f'waiting,,, query_result_json = {query_result_json}')
@@ -88,7 +88,7 @@ class KT_STT(APICaller):
                     time.sleep(1)
                 else:
                     logging.exception(f'[Exception] {__class__.__name__} - timeout - response = {query_result_json}')
-                    return None
+                    return sttResult
 
             # parse stt_data
             if query_result_json.get('statusCode') == 200 and query_result_json.get('sttStatus') == 'completed':
