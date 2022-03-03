@@ -8,12 +8,16 @@ def calculateSTTAccuracy(expectedList:list, actualList:list) -> list:
 
     for exp in expectedList:
         for act in actualList:
+            if act == '':   # except empty result
+                continue
+
+            # except special char. and whitespace
             exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
             act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
             each_accuracy = round(countMatchingCharsBasedOnExpected(exp_sub, act_sub)*100/len(exp_sub), 2)
 
             # update
-            if each_accuracy > accuracy:
+            if each_accuracy >= accuracy:
                 accuracy = each_accuracy
                 hm_expected = exp
                 hm_actual = act
@@ -28,8 +32,9 @@ def calculateWERAccuracy(expectedList:list, actualList:list) -> list:
 
     for exp in expectedList:
         for act in actualList:
-            if act == '':
+            if act == '':   # except empty result
                 continue
+
             # except special char. and whitespace
             exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
             act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
@@ -37,7 +42,7 @@ def calculateWERAccuracy(expectedList:list, actualList:list) -> list:
             # cur_wer = round(countLevenshtein(exp_sub, act_sub)*100/len(exp_sub), 2)
             cur_wer = (1-countLevenshtein(exp_sub, act_sub)/len(exp_sub))*100
 
-            if cur_wer > final_wer:
+            if cur_wer >= final_wer:
                 final_wer = cur_wer
                 hm_expected = exp
                 hm_actual = act
@@ -52,8 +57,9 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
 
     for exp in expectedList:
         for act in actualList:
-            if act == '':
+            if act == '':   # except empty result
                 continue
+
             # except special char. and whitespace
             exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
             act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
@@ -164,11 +170,12 @@ def levenshteinDistanceList(cmp1, cmp2):
 
 
 
-def categorizeSTT(expected:str, actual:str, categoryFilter:list=None):
+def categorizeSTT(expected:str, actual:str, categoryFilter:list, isNA:bool=False):
     categorySet = set()
 
     # except [number & digit]
-    if re.findall('[a-zA-Z0-9]+', expected + actual) or len(actual) == 0:
+    # if re.findall('[a-zA-Z0-9]+', expected + actual) or len(actual) == 0:
+    if isNA or len(actual) == 0:
         return ['NA']   # Not Applicable
 
     # classify category

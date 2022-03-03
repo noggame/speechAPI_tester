@@ -59,7 +59,7 @@ class STTAnalysisRepository:
         return self._analysisResultDict
 
 
-    def addAnalysisData(self, testResult:TestResult, accuracyFilter:list, categoryFilter:list=None):
+    def addAnalysisData(self, testResult:TestResult, accuracyFilter:list, categoryFilter:list, isNA:bool=False):
         """ TestResult를 입력받아 분석하고, 분석 결과를 STT Analysis Reopistory에 저장
         """
 
@@ -67,9 +67,7 @@ class STTAnalysisRepository:
         staticInfoList = []
         for accFunc in accuracyFilter:
             hm_expected, hm_actual, accuracy = accFunc(expectedList = testResult.expected, actualList = testResult.actual)
-            categories = sat.categorizeSTT(expected = hm_expected,
-                                            actual  = hm_actual,
-                                            categoryFilter  = categoryFilter)
+            categories = sat.categorizeSTT(expected = hm_expected, actual  = hm_actual, categoryFilter  = categoryFilter, isNA=isNA)
             
             # get Filter Name (Key)
             filterName = None
@@ -100,87 +98,3 @@ class STTAnalysisRepository:
         
         statics:list = self._analysisResultDict[testResult.id]['statics']
         statics.extend(staticInfoList)
-
-
-    # @deprecated   > use STTAccuracyTool.categorizeSTT(...)
-    # def _categorize(self, targetList, filter:list=None):
-    #     categorySet = set()
-
-    #     for target in targetList:
-    #         # except [number & digit]
-    #         if re.findall('[a-zA-Z0-9]+', target):
-    #             return ['NA']   # Not Applicable
-
-    #         # classify category
-    #         for ct in filter:
-    #             if re.search(ct, target):
-    #                 categorySet.add(ct)
-            
-    #         # not matched any category
-    #         if not len(categorySet):
-    #             categorySet.add('NC')   # Not Classified
-
-    #     return list(categorySet)
-
-
-
-        
-# @deprecated
-# class STTAnalysisData:
-
-#     def __init__(self, expected, actual, accuracy, categories) -> None:
-#         # self._source = None
-#         self._expected = expected
-#         self._actual = actual
-#         self._accuracy = accuracy
-#         self._categories = categories
-#         # self._expected = {}
-#         # self._actual = {}
-#         # self._accuracy = {}
-#         # self._categories = set()
-
-#     def __str__(self) -> str:
-#         result_json = "{"
-
-#         result_json += f'"expected" : "{self._expected}"'
-#         result_json += f', "actual" : "{self._actual}"'
-#         result_json += f', "accuracy" : {self._accuracy}'
-#         result_json += f', "categories" : {self._categories}'
-
-#         result_json += "}"
-#         return result_json
-
-#     # @property
-#     # def source(self):
-#     #     return self._source
-#     @property
-#     def expected(self):
-#         return self._expected
-#     @property
-#     def actual(self):
-#         return self._actual
-#     @property
-#     def categories(self):
-#         return self._categories
-#     @property
-#     def accuracy(self):
-#         return self._accuracy
-
-#     # @source.setter
-#     # def source(self, source):
-#     #     self._source = source
-#     @expected.setter
-#     def expected(self, expected):
-#         self._expected = expected
-#     @actual.setter
-#     def actual(self, actual):
-#         self._actual = actual
-#     @accuracy.setter
-#     def accuracy(self, accuracy):
-#         self._accuracy = accuracy
-#     @categories.setter
-#     def categories(self, categories):
-#         self._categories = categories
-#     # def addCategories(self, categories):
-#     #     for ct in categories:
-#     #         self._categories.add(ct)

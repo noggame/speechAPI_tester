@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Set
 from data.TestData import TestData
 from data.TestResult import TestResult
@@ -7,6 +8,7 @@ from modules.APICaller.APICaller import APICaller
 from data.AnalysisRepository import STTAnalysisRepository
 from modules.Accuracy.AccuracyFilter import AccuracyFilter as AF
 import json
+import modules.Accuracy.STTAccuracyTool as sat
 
 
 # Test DataSet 관리, API호출과 기대값 비교, 통계 등 테스트 수행
@@ -38,12 +40,31 @@ class TestController:
             # for item in dp.getTestDataList(limit=limit)[28900:30100]:     # 12
             # for item in dp.getTestDataList(limit=limit)[30100:32500]:     # 13
             # for item in dp.getTestDataList(limit=limit)[32500:35000]:     # 14
+            # for item in dp.getTestDataList(limit=limit)[35000:37500]:     # 15
+            # for item in dp.getTestDataList(limit=limit)[37500:40000]:     # 16
+            # for item in dp.getTestDataList(limit=limit)[40000:42000]:     # 17
+            # for item in dp.getTestDataList(limit=limit)[42000:43000]:     # 18
+            # for item in dp.getTestDataList(limit=limit)[43000:44800]:     # 19
+            # for item in dp.getTestDataList(limit=limit)[44800:46000]:     # 20
+            # for item in dp.getTestDataList(limit=limit)[46000:47501]:     # 21
+            # for item in dp.getTestDataList(limit=limit)[47500:49001]:     # 22
+            # for item in dp.getTestDataList(limit=limit)[49000:50500]:     # 23
+            # for item in dp.getTestDataList(limit=limit)[50500:51901]:     # 24
+            # for item in dp.getTestDataList(limit=limit)[51900:53200]:     # 25    1300
+            # for item in dp.getTestDataList(limit=limit)[53199:53301]:     # 26    100
+            # for item in dp.getTestDataList(limit=limit)[53300:54600]:     # 27    1300
+            # for item in dp.getTestDataList(limit=limit)[54599:54701]:     # 28    100
+            # for item in dp.getTestDataList(limit=limit)[54700:56001]:     # 29    1300
+            # for item in dp.getTestDataList(limit=limit)[56000:57301]:     # 30    1300
+            # for item in dp.getTestDataList(limit=limit)[57300:58300]:     # 31    1000
+            # for item in dp.getTestDataList(limit=limit)[58300:59301]:     # 32    1000
+            # for item in dp.getTestDataList(limit=limit)[59300:]:          # 33    363
 
+            # 병합중
 
             # 진행중
-            # for item in dp.getTestDataList(limit=limit)[35000:37500]:       # 
-            for item in dp.getTestDataList(limit=limit)[37500:40000]:       # 
-            # for item in dp.getTestDataList(limit=limit)[:59662]:     # TOTAL_SIZE
+   
+            for item in dp.getTestDataList(limit=limit)[:59662]:     # TOTAL_SIZE
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -80,8 +101,39 @@ class TestController:
 
         return _trList
 
+    
+    def getStaticInfo(self, accuracyFilter, categoryFilter, sttResultData, targetFile, record):
+        targetFile = open(targetFile, 'r')
+        dataList = targetFile.readlines()
+        _analysisRepo = STTAnalysisRepository()
 
-    def startAnalysisSTTResult(self, accuracyFilter:list, categoryFilter:list=None, sttResultData:list=None, file:str=None, record:str=None):
+        for i in range(0, len(dataList), len(self._apiList)):
+            apiResultList = []
+            for j in range(i, i+len(self._apiList)):
+                apiResultList.append(dataList[j])
+
+            # filtering (digit, alpha, None)
+            isNA = False
+            for sttResult in apiResultList:
+                jResult = json.loads(sttResult)
+                
+                if len([naData for naData in jResult['expected']+jResult['actual'] if re.findall('[a-zA-Z0-9]+', naData)]) > 0 \
+                    or len([emptyData for emptyData in jResult['actual'] if len(emptyData)]) == 0:
+
+                    isNA = True
+                    logging.info("[Filtering] {} is removed.".format(jResult['id']))
+                    break
+
+
+            for sttResult in apiResultList:
+                jResult = json.loads(sttResult)
+                tr = TestResult(id=jResult['id'], service=jResult['service'], source=jResult['source'], expected=jResult['expected'], actual=jResult['actual'])
+                _analysisRepo.addAnalysisData(testResult=tr, accuracyFilter=accuracyFilter, categoryFilter=categoryFilter, isNA=isNA)
+        
+        self._getStatics(analysisRepo=_analysisRepo, record=record)
+
+
+    def startAnalysisSTTResult(self, accuracyFilter:list, categoryFilter:list=None, sttResultData:list=None, targetFile:str=None, record:str=None):
 
         _analysisRepo = STTAnalysisRepository()
 
@@ -90,12 +142,13 @@ class TestController:
         _testResultList = []
         if sttResultData:       # list input (directly)
             _testResultList = sttResultData
-        elif file:              # file input
-            file_target = open(file, 'r') if file else None
+        elif targetFile:              # file input
+            file_target = open(targetFile, 'r') if targetFile else None
 
             for tr in file_target.readlines():
                 # print(tr)
                 tr_json:dict = json.loads(tr)
+
                 if type(tr_json) != dict:
                     logging.exception(f'[Exception] {__class__.__name__}:{__name__} - result data is not json format')
                     return
@@ -118,10 +171,10 @@ class TestController:
                                         categoryFilter=_categoryFilter)
 
         # Record Analysis data
-        if record:
-            file_record = open(record, 'w')
-            file_record.write(str(_analysisRepo))
-            file_record.close()
+        # if record:
+        #     file_record = open(record, 'w')
+        #     file_record.write(str(_analysisRepo))
+        #     file_record.close()
 
 
         self._getStatics(analysisRepo=_analysisRepo, record=record)
@@ -130,6 +183,7 @@ class TestController:
     def _getStatics(self, analysisRepo:STTAnalysisRepository, record:str=None):
 
         _ar:dict = json.loads(str(analysisRepo).replace("\'", "\""))
+
         staticRepo = {'total': 0}
         # staticRepo = {
         #    "total":35000,
@@ -166,13 +220,14 @@ class TestController:
                 if acc_name not in staticRepo:
                     staticRepo[acc_name] = {}
                 
-                # new Service (ex_ KT, KAKAO)
+                # create Service (ex_ KT, KAKAO)
                 if service not in staticRepo[acc_name]:
                     staticRepo[acc_name][service] = {}
                 
                 service_in_repo:dict = staticRepo[acc_name][service]
                 for ct in categories:
-                    # new Category (ex_ ['NA', 'NC', '예약', ...])
+                    
+                    # create Category (ex_ ['NA', 'NC', '예약', ...])
                     if ct not in service_in_repo:
                         service_in_repo[ct] = {}
                         service_in_repo[ct]['sample'] = 0
