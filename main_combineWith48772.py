@@ -25,8 +25,8 @@ for line in f.readlines():
     actual = div[2].splitlines()[0]
 
     if cmbDict.get(filename[:-5]) != None: # cmbDict[filename[:-5]]:
-        tr_kt = TestResult(id = filename, source = cmbDict[filename[:-5]]['source'], service = 'KT_STT', expected = cmbDict[filename[:-5]]['expected'], actual = cmbDict[filename[:-5]]['actual'])
-        tr_kakao = TestResult(id = filename, source = cmbDict[filename[:-5]]['source'], service = 'Kakao_STT', expected = [expected], actual = [actual])
+        tr_kt = TestResult(id = filename, source = cmbDict[filename[:-5]]['source'], service = 'KT_STT', expected = [expected], actual = [actual])
+        tr_kakao = TestResult(id = filename, source = cmbDict[filename[:-5]]['source'], service = 'Kakao_STT', expected = cmbDict[filename[:-5]]['expected'], actual = cmbDict[filename[:-5]]['actual'])
 
         f_write.write(str(tr_kt)+'\n')
         f_write.write(str(tr_kakao)+'\n')

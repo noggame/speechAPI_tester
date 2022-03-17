@@ -3,6 +3,8 @@ from modules.APICaller.APICaller import APICaller
 import requests
 import json
 import logging
+import modules.SoundConverter as SoundConverter
+
 
 class Kakao_STT(APICaller):
     def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
@@ -37,7 +39,7 @@ class Kakao_STT(APICaller):
         ttsResultList = []
 
         try:
-            wav = open(_targetFile, 'rb')
+            wav=open(_targetFile, 'rb')
         except FileNotFoundError:
             logging.exception("File not found")
             
@@ -69,5 +71,3 @@ class Kakao_STT(APICaller):
         ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
             
         return ttsResultList
-
-

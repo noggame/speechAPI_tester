@@ -10,7 +10,7 @@ ktapi = KT_STT(options={
 })
 kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK a6d5effd95f8bfa5c5b31c982015dfd4') # SDH
 
-targetFile = "14.txt"
+targetFile = "33_2.txt"
 recoveredFile = "r"+targetFile
 
 f = open(f'/mnt/d/Workspace/python/speechAPI_tester/logs/0_end/{targetFile}', 'r')
