@@ -68,6 +68,8 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
             sum_ldl = sum(ldl)
             cur_wer = (1-sum_ldl/(sum_ldl+correction-ldl[0]))*100
 
+            print(ldl, correction)
+
             if ldl[0] > 0 and cur_wer <= 0:     # nomalize
                 cur_wer = (1-sum_ldl/(sum_ldl+correction))*100
 
@@ -144,11 +146,15 @@ def levenshteinDistanceList(cmp1, cmp2):
 
     # calculation
     for i in range(1, len(cmp1)+1):
+        isMatched = False
+
         for j in range(1, len(cmp2)+1):
             # print(cmp1[i-1], cmp2[j-1])
             if cmp1[i-1] == cmp2[j-1]:
                 cmpAry[i][j] = cmpAry[i-1][j-1]
-                correction += 1
+                if not isMatched:
+                    correction += 1
+                    isMatched = True
                 # print(cmpAry[i][j])
             else:
                 insertion = sum(cmpAry[i][j-1]) + 1
