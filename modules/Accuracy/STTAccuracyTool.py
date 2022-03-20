@@ -68,7 +68,7 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
             sum_ldl = sum(ldl)
             cur_wer = (1-sum_ldl/(sum_ldl+correction-ldl[0]))*100
 
-            print(ldl, correction)
+            # print(ldl, correction)
 
             if ldl[0] > 0 and cur_wer <= 0:     # nomalize
                 cur_wer = (1-sum_ldl/(sum_ldl+correction))*100
