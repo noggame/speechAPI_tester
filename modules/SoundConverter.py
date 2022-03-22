@@ -51,7 +51,8 @@ def makeResamplingData(targetDirPath, org_sr, re_sr):
         for file in files:
             if file.endswith('.wav'):
                 target = f"{root}/{file}"
-                dest = f"{root}/{file[:-4]}_{re_sr}.wav"
+                # dest = f"{root}/{file[:-4]}_{re_sr}.wav"
+                dest = f"{root}/{file[-7:-4]}.wav"
 
                 f=open(target, 'rb')
                 buf = bytearray(f.read())
@@ -62,7 +63,8 @@ def makeResamplingData(targetDirPath, org_sr, re_sr):
 
             elif file.endswith('.raw'):
                 target = f"{root}/{file}"
-                dest = f"{root}/{file[:-4]}_{re_sr}.wav"
+                # dest = f"{root}/{file[:-4]}_{re_sr}.wav"
+                dest = f"{root}/{file[-7:-4]}.wav"
 
                 f=open(target, 'rb')
                 buf = bytearray(f.read())

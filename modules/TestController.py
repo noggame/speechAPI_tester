@@ -66,6 +66,7 @@ class TestController:
             # 진행중
    
             for item in dp.getTestDataList(limit=limit):     # TOTAL_SIZE
+            # for item in dp.getTestDataList(limit=limit)[39:]:     # TOTAL_SIZE
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -118,9 +119,11 @@ class TestController:
             for sttResult in apiResultList:
                 jResult = json.loads(sttResult)
                 
-                if len([emptyData for emptyData in jResult['actual'] if len(emptyData)]) == 0:
-                # if len([naData for naData in jResult['expected']+jResult['actual'] if re.findall('[a-zA-Z0-9]+', naData)]) > 0 \
-                #     or len([emptyData for emptyData in jResult['actual'] if len(emptyData)]) == 0:
+                ### 공백만 제외
+                # if len([emptyData for emptyData in jResult['actual'] if len(emptyData)]) == 0:
+                ### 공백+숫자+문자 제외
+                if len([naData for naData in jResult['expected']+jResult['actual'] if re.findall('[a-zA-Z0-9]+', naData)]) > 0 \
+                    or len([emptyData for emptyData in jResult['actual'] if len(emptyData)]) == 0:
 
                     isNA = True
                     logging.info("[Filtering] {} is removed.".format(jResult['id']))

@@ -13,7 +13,7 @@ class ShinhanDataParser(AIDataParser):
         _numOftd = 0
 
         # json 파일 정보 파싱
-        answerFile = open(f'{_targetPath}/expect.txt', 'r')
+        answerFile = open(f'{_targetPath}/expect_test.txt', 'r')
 
         for line in answerFile.readlines():
             if limit > 0 and _numOftd >= limit:  # limit number of test dataset
@@ -21,13 +21,13 @@ class ShinhanDataParser(AIDataParser):
 
             # read exp from result file
             div = line.split('\t')
-            index = div[0]
-            id = _targetPath[_targetPath.rindex('/')+1:] + '_' + str(index)
+            index = str(div[0])
+            id = _targetPath[_targetPath.rindex('/')+1:] + '_' + index
             expectedList = self.extractExpectedSentence(div[1].splitlines()[0])
 
 
             # td = TestData(id=id, expectedList=expectedList, sampleFilePath=f'{_targetPath}/{index}_16000.wav')
-            td = TestData(id=id, expectedList=expectedList, sampleFilePath=f'{_targetPath}/{index}.raw')
+            td = TestData(id=id, expectedList=expectedList, sampleFilePath=f'{_targetPath}/{index}.wav')
             _testDataList.append(td)
             
             _numOftd += 1

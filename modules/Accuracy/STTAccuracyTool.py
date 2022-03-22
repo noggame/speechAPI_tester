@@ -1,28 +1,6 @@
 import re
 import copy
 
-# def calculateSTTAccuracy(expectedList:list, actualList:list) -> list:
-#     accuracy = 0
-#     hm_expected = ''    # highest matching
-#     hm_actual = ''
-
-#     for exp in expectedList:
-#         for act in actualList:
-#             if act == '':   # except empty result
-#                 continue
-
-#             # except special char. and whitespace
-#             exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
-#             act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
-#             each_accuracy = round(countMatchingCharsBasedOnExpected(exp_sub, act_sub)*100/len(exp_sub), 2)
-
-#             # update
-#             if each_accuracy >= accuracy:
-#                 accuracy = each_accuracy
-#                 hm_expected = exp
-#                 hm_actual = act
-
-#     return [hm_expected, hm_actual, accuracy]
 
 
 # def calculateWERAccuracy(expectedList:list, actualList:list) -> list:
@@ -50,28 +28,7 @@ import copy
 #     return [hm_expected, hm_actual, final_wer]
 
 
-# def countMatchingCharsBasedOnExpected(expected:str, actual:str):
 
-#     # make a strDict
-#     expectedDict = {}
-#     for ch in expected:
-#         if ch not in expectedDict:
-#             expectedDict[ch] = 0
-#         expectedDict[ch] += 1
-
-#     # count diff
-#     matched = 0
-#     for ch in actual:
-#         if ch not in expectedDict:
-#             continue
-
-#         matched += 1
-#         if expectedDict[ch] == 1:
-#             expectedDict.pop(ch)
-#         else:
-#             expectedDict[ch] -= 1
-
-#     return matched
 
 
 
@@ -118,10 +75,10 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
             act_sub = re.sub('[!@#$%^&*\(\).? \t]*', '', act)
 
             err_ins, err_del, err_sub, correction = levenshteinDistanceList(exp_sub, act_sub)
-            print(f'insertion    = {err_ins}')
-            print(f'deletion     = {err_del}')
-            print(f'substitution = {err_sub}')
-            print(f'correction   = {correction}')
+            # print(f'insertion    = {err_ins}')
+            # print(f'deletion     = {err_del}')
+            # print(f'substitution = {err_sub}')
+            # print(f'correction   = {correction}')
 
             sum_ids = sum([err_ins, err_del, err_sub])
             sum_sdc = sum([err_sub, err_del, correction])
@@ -211,3 +168,50 @@ def categorizeSTT(expected:str, actual:str, categoryFilter:list, isNA:bool=False
     return list(categorySet)
 
 
+
+
+def calculateSTTAccuracy(expectedList:list, actualList:list) -> list:
+    accuracy = 0
+    hm_expected = ''    # highest matching
+    hm_actual = ''
+
+    for exp in expectedList:
+        for act in actualList:
+            if act == '':   # except empty result
+                continue
+
+            # except special char. and whitespace
+            exp_sub = re.sub('[!@#$%^&*\(\).? ]*', '', exp)
+            act_sub = re.sub('[!@#$%^&*\(\).? ]*', '', act)
+            each_accuracy = round(countMatchingCharsBasedOnExpected(exp_sub, act_sub)*100/len(exp_sub), 2)
+
+            # update
+            if each_accuracy >= accuracy:
+                accuracy = each_accuracy
+                hm_expected = exp
+                hm_actual = act
+
+    return [hm_expected, hm_actual, accuracy]
+
+def countMatchingCharsBasedOnExpected(expected:str, actual:str):
+
+    # make a strDict
+    expectedDict = {}
+    for ch in expected:
+        if ch not in expectedDict:
+            expectedDict[ch] = 0
+        expectedDict[ch] += 1
+
+    # count diff
+    matched = 0
+    for ch in actual:
+        if ch not in expectedDict:
+            continue
+
+        matched += 1
+        if expectedDict[ch] == 1:
+            expectedDict.pop(ch)
+        else:
+            expectedDict[ch] -= 1
+
+    return matched

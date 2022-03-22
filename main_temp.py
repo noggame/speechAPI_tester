@@ -1,20 +1,23 @@
-import modules.SoundConverter as sc
 import os
+import json
+import re
 
+_baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_101404438_2011.raw_Callee'
+# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_154036778_2010.raw_Callee'
+# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_160954259_2108.raw_Callee'
+# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_164634311_2002.raw_Callee'
+_resultFileName = 'result_kakao.txt'
 
-### up-sampling
-# # targetDirPath = '/mnt/d/Workspace/python/speechAPI_tester/sample/shinhan/1_20220111_101404438_2011.raw_Callee'
-# targetDirPath = '/mnt/d/Workspace/python/speechAPI_tester/sample/shinhan/test'
-# sc.makeResamplingData(targetDirPath, 8000, 16000)
+f = open(f'{_baseDir}/{_resultFileName}')
 
+expectedSentence = ''
+actualSentence = ''
 
+for line in f.readlines():
+    lj = json.loads(line)
+    exp = lj['expected'][0]
+    act = lj['actual'][0]
 
-### Indexing
-targetDirPath = '/mnt/d/Workspace/python/speechAPI_tester/sample/shinhan/1_20220111_101404438_2011.raw_Callee'
-for root, dirs, files in os.walk(targetDirPath):
-    # Converting
-    for file in files:
-        if file.endswith('.wav'):
-            target = f"{root}/{file}"
-            dest = f"{root}/{file[:2]}.wav"
-            os.rename(target, dest)
+    if re.findall('[a-zA-Z0-9]+', act):
+        print(exp, act)
+    

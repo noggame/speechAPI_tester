@@ -38,10 +38,7 @@ class Kakao_STT(APICaller):
         }
         ttsResultList = []
 
-        try:
-            wav=open(_targetFile, 'rb')
-        except FileNotFoundError:
-            logging.exception("File not found")
+        wav=open(_targetFile, 'rb')
             
         try:
             response = requests.post(url = _url, headers = _header, data = wav)
