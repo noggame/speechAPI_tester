@@ -1,14 +1,20 @@
 import json
+import config.key as key
 import copy
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
 
+# KT
 ktapi = KT_STT(options={
-    'client_id':'3fd7261c-7d08-487b-a104-b867919e497b',
-    'client_key':'d8613f5b-43f1-5a11-b183-35261da543a6',
-    'client_secret':'693bc75a1bf4f80d2636372c02b64d0c5a636757e1b9ae6ddfd5c209f9d32892'
+    'client_id': key.kt['client_id'],
+    'client_key': key.kt['client_key'],
+    'client_secret': key.kt['client_secret']
 })
-kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK a6d5effd95f8bfa5c5b31c982015dfd4') # SDH
+
+# KAKAO
+kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['SDH'])       # SDH
+# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
+# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])       # YJE
 
 targetFile = "33_2.txt"
 recoveredFile = "r"+targetFile

@@ -1,4 +1,5 @@
 import re
+import config.key as key
 from modules.AIDataParser.AIHubParser import AIHubParser
 from modules.AIDataParser.ClovaAIParser import ClovaAIParser
 import logging
@@ -21,15 +22,15 @@ logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("
 ## set API
 # KT
 ktapi = KT_STT(options={
-    'client_id':'3fd7261c-7d08-487b-a104-b867919e497b',
-    'client_key':'d8613f5b-43f1-5a11-b183-35261da543a6',
-    'client_secret':'693bc75a1bf4f80d2636372c02b64d0c5a636757e1b9ae6ddfd5c209f9d32892'
+    'client_id': key.kt['client_id'],
+    'client_key': key.kt['client_key'],
+    'client_secret': key.kt['client_secret']
 })
 
 # KAKAO
-kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK 697f04dd01214c2a532634d6df4d1126') # SDH
-# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK ccde4280f6ed1c14520642b03f96664c')   # KJH
-# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key='KakaoAK a6d5effd95f8bfa5c5b31c982015dfd4')   # YJE
+kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['SDH'])       # SDH
+# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
+# # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])       # YJE
 
 ### Test TestController
 tc = TestController()
