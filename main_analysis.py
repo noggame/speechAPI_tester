@@ -1,7 +1,7 @@
 import re
 import config.key as key
-from modules.AIDataParser.AIHubParser import AIHubParser
-from modules.AIDataParser.ClovaAIParser import ClovaAIParser
+from modules.AIDataParser.STT.AIHubParser import AIHubParser
+from modules.AIDataParser.STT.ClovaAIParser import ClovaAIParser
 import logging
 import os
 from datetime import datetime

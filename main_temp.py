@@ -1,23 +1,21 @@
+from operator import itemgetter
 import os
 import json
 import re
 
-_baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_101404438_2011.raw_Callee'
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_154036778_2010.raw_Callee'
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_160954259_2108.raw_Callee'
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_164634311_2002.raw_Callee'
-_resultFileName = 'result_kakao.txt'
+from cv2 import sort
+from torch import div
+import config.cfgParser as cfg
+import requests
+from datetime import datetime
+from data.Vision.FaceInfo import Face
+from modules.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceAPI
 
-f = open(f'{_baseDir}/{_resultFileName}')
 
-expectedSentence = ''
-actualSentence = ''
+target_file = "/Users/songdonghun/document/research/Vision/people_01.jpeg"
+ka = Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh'))
+data = ka.request(targetFile=target_file)
 
-for line in f.readlines():
-    lj = json.loads(line)
-    exp = lj['expected'][0]
-    act = lj['actual'][0]
+print(*data, sep='\n')
 
-    if re.findall('[a-zA-Z0-9]+', act):
-        print(exp, act)
-    
+# /Users/songdonghun/workspace/dataset/vision/Face Counting Challenge

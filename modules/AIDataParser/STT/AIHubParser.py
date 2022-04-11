@@ -3,7 +3,6 @@ import re
 import logging
 import pathlib
 from data.TestData import TestData
-
 from modules.AIDataParser.AIDataParser import AIDataParser
 
 class AIHubParser(AIDataParser):

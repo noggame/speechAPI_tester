@@ -23,6 +23,9 @@ class TestController:
     def add_STT_API(self, target:APICaller):
         self._apiList.append(target)
 
+    def add_Vision_API(self, target:APICaller):
+        self._apiList.append(target)
+
     def startSTTRequest(self, limit:int=0, record:str=None):
         _trList = []
         file_record = open(record, 'w') if record else None
@@ -31,42 +34,7 @@ class TestController:
         for eachDP in self._dataList:
             dp:AIDataParser = eachDP
 
-            # 완료
-            # for item in dp.getTestDataList(limit=limit)[21500:22900]:     # 07
-            # for item in dp.getTestDataList(limit=limit)[22900:24000]:     # 08
-            # for item in dp.getTestDataList(limit=limit)[24000:25100]:     # 09
-            # for item in dp.getTestDataList(limit=limit)[25100:26600]:     # 10
-            # for item in dp.getTestDataList(limit=limit)[26600:28900]:     # 11
-            # for item in dp.getTestDataList(limit=limit)[28900:30100]:     # 12
-            # for item in dp.getTestDataList(limit=limit)[30100:32500]:     # 13
-            # for item in dp.getTestDataList(limit=limit)[32500:35000]:     # 14
-            # for item in dp.getTestDataList(limit=limit)[35000:37500]:     # 15
-            # for item in dp.getTestDataList(limit=limit)[37500:40000]:     # 16
-            # for item in dp.getTestDataList(limit=limit)[40000:42000]:     # 17
-            # for item in dp.getTestDataList(limit=limit)[42000:43000]:     # 18
-            # for item in dp.getTestDataList(limit=limit)[43000:44800]:     # 19
-            # for item in dp.getTestDataList(limit=limit)[44800:46000]:     # 20
-            # for item in dp.getTestDataList(limit=limit)[46000:47501]:     # 21
-            # for item in dp.getTestDataList(limit=limit)[47500:49001]:     # 22
-            # for item in dp.getTestDataList(limit=limit)[49000:50500]:     # 23
-            # for item in dp.getTestDataList(limit=limit)[50500:51901]:     # 24
-            # for item in dp.getTestDataList(limit=limit)[51900:53200]:     # 25    1300
-            # for item in dp.getTestDataList(limit=limit)[53199:53301]:     # 26    100
-            # for item in dp.getTestDataList(limit=limit)[53300:54600]:     # 27    1300
-            # for item in dp.getTestDataList(limit=limit)[54599:54701]:     # 28    100
-            # for item in dp.getTestDataList(limit=limit)[54700:56001]:     # 29    1300
-            # for item in dp.getTestDataList(limit=limit)[56000:57301]:     # 30    1300
-            # for item in dp.getTestDataList(limit=limit)[57300:58300]:     # 31    1000
-            # for item in dp.getTestDataList(limit=limit)[58300:59301]:     # 32    1000
-            # for item in dp.getTestDataList(limit=limit)[59300:]:          # 33    363
-            # for item in dp.getTestDataList(limit=limit)[:59662]:     # TOTAL_SIZE
-
-            # 병합중
-
-            # 진행중
-   
             for item in dp.getTestDataList(limit=limit):     # TOTAL_SIZE
-            # for item in dp.getTestDataList(limit=limit)[39:]:     # TOTAL_SIZE
                 td:TestData = item
                 print(f'[SAMPLE] {td.sampleFilePath}')
                 logging.info(f'[SAMPLE] {td.sampleFilePath}')
@@ -182,7 +150,7 @@ class TestController:
         #     file_record.close()
 
 
-        self._getStatics(analysisRepo=_analysisRepo, record=record)
+        return self._getStatics(analysisRepo=_analysisRepo, record=record)
 
 
     def _getStatics(self, analysisRepo:STTAnalysisRepository, record:str=None):
@@ -249,7 +217,7 @@ class TestController:
         #     file_record.close()
 
         # print Statics
-        self._parseStaticRepo(staticRepository = staticRepo)
+        return self._parseStaticRepo(staticRepository = staticRepo)
 
 
     def _parseStaticRepo(self, staticRepository:dict):
@@ -284,6 +252,7 @@ class TestController:
 
         print(result)
 
+        return result
         # print(staticRepository)
 
 

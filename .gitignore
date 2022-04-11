@@ -3,3 +3,4 @@ __pycache__/
 result*
 logs/
 .vscode
+config/
