@@ -1,10 +1,10 @@
 import logging
 import os
-import config.key as key
+import config.cfgParser as cfg
 from datetime import datetime
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
 from modules.TestController import TestController
-from modules.AIDataParser.ShinhanDataParser import ShinhanDataParser
+from modules.DataParser.STT.ShinhanDataParser import ShinhanDataParser
 import modules.Accuracy.STTAccuracyTool as sat
 import json
 
@@ -13,24 +13,14 @@ from modules.Accuracy.AccuracyFilter import AccuracyFilter
 
 
 ### User Configuration
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_101404438_2011.raw_Callee'
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_154036778_2010.raw_Callee'
-# _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_160954259_2108.raw_Callee'
 _baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_164634311_2002.raw_Callee'
 _resultFileName = 'result_kakao.txt'
-
 
 ### System Configuration
 logging.basicConfig(filename=f'{_baseDir}/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 tc = TestController()
-# set data
-sdp = ShinhanDataParser(f'{_baseDir}')
-tc.add_STT_TestData(sdp)
-# set api
-# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['SDH'])       # SDH
-kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
-# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])       # YJE
-tc.add_STT_API(kakaoapi)
+tc.add_STT_TestData(ShinhanDataParser(f'{_baseDir}'))
+tc.add_STT_API(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_kjh')))
 
 
 ### test

@@ -43,7 +43,7 @@ class TestResult:
         result_json += f', "actual": ['
         actualList = []
         for act in self._actual:
-            actualList.append(f'"{act}"')
+            actualList.append(f'{act}')
         actualList = ', '.join(actualList)
         result_json += f'{actualList}]'
 

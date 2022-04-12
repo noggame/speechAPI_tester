@@ -3,13 +3,14 @@ import re
 from typing import Set
 from data.TestData import TestData
 from data.TestResult import TestResult
-from modules.AIDataParser.AIDataParser import AIDataParser
+from data.Vision.FaceInfo import Face
+from modules.DataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
 from data.AnalysisRepository import STTAnalysisRepository
 from modules.Accuracy.AccuracyFilter import AccuracyFilter as AF
 import json
 import modules.Accuracy.STTAccuracyTool as sat
-
+from PIL import Image, ImageDraw
 
 # Test DataSet 관리, API호출과 기대값 비교, 통계 등 테스트 수행
 class TestController:
@@ -23,8 +24,66 @@ class TestController:
     def add_STT_API(self, target:APICaller):
         self._apiList.append(target)
 
+    def add_Vision_TestData(self, target:AIDataParser):
+        self._dataList.append(target)
+
     def add_Vision_API(self, target:APICaller):
         self._apiList.append(target)
+
+    def startVisionRequest(self, limit:int=0, record:str=None):
+        # get target_data/path
+        for eachDataParser in self._dataList:
+            dataParser:AIDataParser = eachDataParser
+
+            # get samples from target_data/path
+            sum=0
+            cnt=1
+            # for sample in dataParser.getTestDataList(limit=limit):
+            for sample in dataParser.getTestDataList(limit=limit):
+                td:TestData = sample
+                print("[{}] {}".format(cnt, td.sampleFilePath))
+                cnt+=1
+
+                # request API
+                for eachAPI in self._apiList:
+                    api:APICaller = eachAPI
+
+                    actualResult:list = api.request(targetFile=td.sampleFilePath)   # = faceList
+                    testResult:TestResult = TestResult(id=td.id,
+                                                        service=api.__class__.__name__,
+                                                        source=td.sampleFilePath,
+                                                        expected=td.expectedList,
+                                                        actual=actualResult)
+
+                    self._saveVisionImage(target=testResult)
+                    print("expected = {}, actual = {}".format(td.expectedList[0], len(actualResult)))
+                    logging.info(str(testResult))
+
+                    if td.expectedList[0] == len(actualResult):
+                        sum+=1
+
+            print(sum)
+
+    def _saveVisionImage(self, target:TestResult):
+        # init.
+        img = Image.open(target.source)
+        _width, _height = img.size
+        draw = ImageDraw.Draw(img)
+
+        # get rectangle data & draw
+        for face in target.actual:
+            face:Face = face
+            abs_x = _width * face.x
+            abs_y = _height * face.y
+            abs_width = _width * face.width
+            abs_height = _height * face.height
+            draw.rectangle(xy=[(abs_x, abs_y), (int(abs_x+abs_width), int(abs_y+abs_height))], outline="#00FF00")
+
+        # save
+        idxOfExt = str(target.source).rindex('.')
+        img.save(target.source[:idxOfExt] + "_rec" + target.source[idxOfExt:])
+        img.close()
+
 
     def startSTTRequest(self, limit:int=0, record:str=None):
         _trList = []

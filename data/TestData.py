@@ -44,3 +44,13 @@ class TestData:
     @sampleFilePath.setter
     def sampleFilePath(self, sampleFilePath):
         self._sampleFilePath = sampleFilePath
+
+
+# class VisionTestData(TestData):
+#     def __init__(self, id, expectedList, sampleFilePath, rectangleList:list) -> None:
+#         super().__init__(id, expectedList, sampleFilePath)
+#         self._rectangleList = rectangleList
+
+#     @property
+#     def rectangleList(self):
+#         return self._rectangleList

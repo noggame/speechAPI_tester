@@ -1,7 +1,7 @@
 import re
-import config.key as key
-from modules.AIDataParser.STT.AIHubParser import AIHubParser
-from modules.AIDataParser.STT.ClovaAIParser import ClovaAIParser
+import config.cfgParser as cfg
+from modules.DataParser.STT.AIHubParser import AIHubParser
+from modules.DataParser.STT.ClovaAIParser import ClovaAIParser
 import logging
 import os
 from datetime import datetime
@@ -14,29 +14,13 @@ logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("
                     level=logging.DEBUG,
                     format='%(asctime)s %(message)s')
 
-## set Sample
-# aihp = AIHubParser(f'{os.getcwd()}/sample/sample_100')        # AIHub
-clvp = ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset')   # ClovaAI
-
-## set API
-# KT
-ktapi = KT_STT(options={
-    'client_id': key.kt['client_id'],
-    'client_key': key.kt['client_key'],
-    'client_secret': key.kt['client_secret']
-})
-
-# KAKAO
-kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['SDH'])       # SDH
-# kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
-# # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])       # YJE
 
 ### Test TestController
 tc = TestController()
-# tc.add_STT_TestData(aihp)
-tc.add_STT_TestData(clvp)
-tc.add_STT_API(ktapi)
-tc.add_STT_API(kakaoapi)
+# tc.add_STT_TestData(AIHubParser(f'{os.getcwd()}/sample/sample_100'))
+tc.add_STT_TestData(ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset'))
+tc.add_STT_API(KT_STT(options={'client_id': cfg.get('kt', 'cliend_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'cliend_secret')}))
+tc.add_STT_API(Kakao_STT(url=cfg.get('kt', 'url_stt'), key=cfg.get('kt', 'key_sdh')))
 
 
 ### STT API 호출 및 결과 저장
