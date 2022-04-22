@@ -18,4 +18,4 @@ pip install requests_toolbelt
 pip install pydub
 pip install numpy
 pip install librosa
-
+pip install pillow

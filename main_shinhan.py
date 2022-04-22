@@ -2,8 +2,9 @@ import logging
 import os
 import config.cfgParser as cfg
 from datetime import datetime
+from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
-from modules.TestController import TestController
+from modules.Controller.VoiceTestController import STTTestController
 from modules.DataParser.STT.ShinhanDataParser import ShinhanDataParser
 import modules.Accuracy.STTAccuracyTool as sat
 import json
@@ -13,22 +14,26 @@ from modules.Accuracy.AccuracyFilter import AccuracyFilter
 
 
 ### User Configuration
-_baseDir = f'{os.getcwd()}/sample/shinhan/split/1_20220111_164634311_2002.raw_Callee'
+_baseDir = "/Users/songdonghun/dataset/STT/shinhan/0422_yes/1_20220111_101404438_2011.raw_Callee"
+# _baseDir = "/Users/songdonghun/dataset/STT/shinhan/0422_yes/1_20220111_154036778_2010.raw_Callee"
+# _baseDir = "/Users/songdonghun/dataset/STT/shinhan/0422_yes/1_20220111_160954259_2108.raw_Callee"
+# _baseDir = "/Users/songdonghun/dataset/STT/shinhan/0422_yes/1_20220111_164634311_2002.raw_Callee"
+
 _resultFileName = 'result_kakao.txt'
 
 ### System Configuration
-logging.basicConfig(filename=f'{_baseDir}/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
-tc = TestController()
-tc.add_STT_TestData(ShinhanDataParser(f'{_baseDir}'))
-tc.add_STT_API(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_kjh')))
-
+logging.basicConfig(filename=f'{_baseDir}/logs/STT/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+stt_tc = STTTestController()
+stt_tc.addTestData(ShinhanDataParser(f'{_baseDir}'))
+stt_tc.addAPICaller(KT_STT(options={'client_id': cfg.get('kt', 'cliend_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'cliend_secret')}))
+stt_tc.addAPICaller(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_kjh')))
 
 ### test
 # API
-# sttResultList = tc.startSTTRequest(record=f'{_baseDir}/{_resultFileName}')    # 전체 데이터 테스트
+sttResultList = stt_tc.startRequest(record=f'{_baseDir}/{_resultFileName}')    # 전체 데이터 테스트
 
 # # Analysis
-# analysisResultList = tc.getStaticInfo(accuracyFilter=[AccuracyFilter.EXP_BASED, AccuracyFilter.WER],
+# analysisResultList = stt_tc.getStaticInfo(accuracyFilter=[AccuracyFilter.EXP_BASED, AccuracyFilter.WER],
 #                                             categoryFilter=[],
 #                                             sttResultData = None,
 #                                             # targetFile = f'{_targetPath}/result_overall.txt',
@@ -36,16 +41,16 @@ tc.add_STT_API(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', '
 #                                             record = f'{_baseDir}/analysis_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 
 
-# Combine-Analysis
-f = open(f'{_baseDir}/{_resultFileName}', 'r')
-expectedSentence = ''
-actualSentence = ''
-for line in f.readlines():
-    expectedSentence += json.loads(line)['expected'][0] + " "
-    actualSentence += json.loads(line)['actual'][0] + " "
+### Combine-Analysis
+# f = open(f'{_baseDir}/{_resultFileName}', 'r')
+# expectedSentence = ''
+# actualSentence = ''
+# for line in f.readlines():
+#     expectedSentence += json.loads(line)['expected'][0] + " "
+#     actualSentence += json.loads(line)['actual'][0] + " "
 ### Acc
-exp, act, wer = sat.calculateWERAccuracyWithNomalize([expectedSentence], [actualSentence])
-print(wer)
+# exp, act, wer = sat.calculateWERAccuracyWithNomalize([expectedSentence], [actualSentence])
+# print(wer)
 
 
 

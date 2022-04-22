@@ -36,7 +36,7 @@ class TestResult:
         result_json += f', "expected": ['
         expectedList = []
         for exp in self._expected:
-            expectedList.append(f'"{exp}"')
+            expectedList.append(f'{exp}')
         expectedList = ', '.join(expectedList)
         result_json += f'{expectedList}]'
 

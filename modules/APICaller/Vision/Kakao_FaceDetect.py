@@ -29,14 +29,16 @@ class Kakao_FaceAPI(APICaller):
                 data = response.text
                 data = json.loads(data) if data else None
                 faces = data['result']['faces']
+                img_width = data['result']['width']
+                img_height = data['result']['height']
 
                 for face_data in faces:
                     # coordinate (x, y)
-                    x = face_data['x']
-                    y = face_data['y']
+                    x = face_data['x']*int(img_width)
+                    y = face_data['y']*int(img_height)
                     # width, height
-                    width = face_data['w']
-                    height = face_data['h']
+                    width = img_width * face_data['w']
+                    height = img_height * face_data['h']
                     # gender
                     male_property = face_data['facial_attributes']['gender']['male']
                     female_property = face_data['facial_attributes']['gender']['female']

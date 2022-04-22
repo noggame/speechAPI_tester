@@ -4,3 +4,4 @@ result*
 logs/
 .vscode
 config/
+.DS_Store

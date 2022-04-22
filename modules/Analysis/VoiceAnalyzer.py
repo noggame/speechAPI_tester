@@ -2,10 +2,12 @@ from data.TestResult import TestResult
 from modules.Accuracy.AccuracyFilter import AccuracyFilter
 import modules.Accuracy.STTAccuracyTool as sat
 # from data.TestResultUnified import TestResultUnified
+from modules.Analysis.ResultAnalyzer import ResultAnalyzer
 
-class STTAnalysisRepository:
+class STTResultAnalyzer(ResultAnalyzer):
     def __init__(self) -> None:
-        self._analysisResultDict = {}
+    #     self._analysisResultDict = {}
+        super().__init__()
 
 ##### Format #####
 # _analysisResultDict = {

@@ -1,5 +1,6 @@
 import csv
 from data.TestData import TestData
+from data.Vision.FaceInfo import Face
 from modules.DataParser.AIDataParser import AIDataParser
 
 class FaceCountingParser(AIDataParser):
@@ -9,34 +10,43 @@ class FaceCountingParser(AIDataParser):
     def getTestDataList(self, targetPath: str = None, limit: int = 0):
         _targetPath = self.targetPath if not targetPath else targetPath
         _testDataList = []
-        _numOftd = 0
+        _numOftd = 1
 
-        # json 파일 정보 파싱
-        try:
-            answerFile = open(f'{_targetPath}/train.csv', 'r')
-            csvData = csv.reader(answerFile)
 
-            next(csvData)  # pass header
+        ### face box
+        boxFile = open(f'{_targetPath}/bbox_train.csv', 'r')
+        csvData = csv.reader(boxFile)
+        next(csvData)  # pass header
 
-            # get data
-            for name, num in csvData:
-                if limit > 0 and _numOftd >= limit:  # limit number of test dataset
+        # get data
+        prev_name = None
+        faceList = []
+        for name, width, height, xmin, ymin, xmax, ymax in csvData:
+
+            if name != prev_name and prev_name:
+                if limit > 0 and _numOftd >= limit: # limit number of test dataset
                     break
+                else:
+                    _numOftd += 1
 
-                id = name
-                target_img = f'{_targetPath}/image_data/{name}'
-                expectedValue = num
-
-                # @@@@@@@@@@@@@ 좌표를 입력받으려면 (x, y, width, height)를 입력받도록 수정 필요
-                td = TestData(id=id, expectedList=[expectedValue], sampleFilePath=target_img)
+                faceList.sort(key=lambda m: m.x)
+                td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/image_data/{prev_name}')
                 _testDataList.append(td)
+                # init.
+                faceList = []
+            
+            prev_name = name
+            faceList.append(Face(x=xmin, y=ymin, width=int(xmax)-int(xmin), height=int(ymax)-int(ymin), gender=None))
 
-                _numOftd += 1
+        # end of line
+        faceList.sort(key=lambda m: m.x)
+        td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/image_data/{prev_name}')
+        _testDataList.append(td)
 
-            answerFile.close()
+        boxFile.close()
 
-        except:
-            print("[Error] fail to parsing face_data.")
+        # except:
+        #     print("[Error] fail to parsing face_data.")
             # logging.error('[ERR] ClovaAIParser - ANswerFile not found. check the target path')
 
         return _testDataList

@@ -2,7 +2,7 @@ import re
 import logging
 from typing import List
 from data.TestResult import TestResult
-from data.AnalysisRepository import STTAnalysisRepository
+from modules.Analysis.VoiceAnalyzer import STTResultAnalyzer
 
 
 class StaticTool:

@@ -1,12 +1,12 @@
 import logging
 import os
-import config.key as key
+import config.cfgParser as cfg
 from datetime import datetime
 from modules.TestController import TestController
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
-from modules.AIDataParser.AIHubParser import AIHubParser
-from modules.AIDataParser.ClovaAIParser import ClovaAIParser
+from modules.DataParser.STT.AIHubParser import AIHubParser
+from modules.DataParser.STT.ClovaAIParser import ClovaAIParser
 
 # Analysis
 from modules.Accuracy.AccuracyFilter import AccuracyFilter
@@ -72,13 +72,13 @@ class STTAccuracyTool:
 
         if api_name == 'KT':
             target_api = KT_STT(options={
-                'client_id': key.kt['client_id'],
-                'client_key': key.kt['client_key'],
-                'client_secret': key.kt['client_secret']
+                'client_id': cfg.get('kt', 'client_id'),
+                'client_key': cfg.get('kt', 'client_key'),
+                'client_secret': cfg.get('kt', 'client_secret')
             })
 
         elif api_name == 'Kakao':
-            target_api = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['SDH'])       # SDH
+            target_api = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=cfg.get('kakao', 'key_sdh'))       # SDH
             # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
             # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])         # YJE
 

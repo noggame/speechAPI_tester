@@ -1,19 +1,21 @@
 import re
-from traceback import print_list
+import os
+
 from data.TestData import TestData
-from modules.AIDataParser.AIDataParser import AIDataParser
+from modules.DataParser.AIDataParser import AIDataParser
 
 class ShinhanDataParser(AIDataParser):
     def __init__(self, targetPath) -> None:
         super().__init__(targetPath)
+
 
     def getTestDataList(self, targetPath: str = None, limit: int = 0):
         _targetPath = self.targetPath if not targetPath else targetPath
         _testDataList = []
         _numOftd = 0
 
-        # json 파일 정보 파싱
-        answerFile = open(f'{_targetPath}/expect_test.txt', 'r')
+        # 정답파일
+        answerFile = open(f'{_targetPath}/expect_rewritten.txt', 'r')
 
         for line in answerFile.readlines():
             if limit > 0 and _numOftd >= limit:  # limit number of test dataset
