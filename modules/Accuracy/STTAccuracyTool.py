@@ -83,6 +83,10 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
             sum_ids = sum([err_ins, err_del, err_sub])
             sum_sdc = sum([err_sub, err_del, correction])
             cur_wer = (1-sum_ids/sum_sdc)*100
+            
+            print("Accuracy = {}".format(cur_wer))
+            print("Correct = {}".format((1-(err_del+err_sub)/sum_sdc)*100))
+            print("[cor:{}, ins:{}, del:{}, sub:{}]\n".format(correction, err_ins, err_del, err_sub))
 
             if err_ins > 0 and cur_wer <= 0:     # nomalize
                 cur_wer = (1-sum_ids/(sum_ids+correction))*100
@@ -95,48 +99,41 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
     return [hm_expected, hm_actual, final_wer]
 
 
-
 def levenshteinDistanceList(cmp1, cmp2):
     cmpAry = []
     correction = 0
 
-    # initialisation
+    # init.
     for i in range(len(cmp1)+1):
         cmpAry.append([])
         for j in range(len(cmp2)+1):
-            cmpAry[i].append([0, 0, 0, 0])  # [Insertion, Deletion, Substituion, isCorrect]
+            cmpAry[i].append([0, 0, 0])  # [Insertion, Deletion, Substituion, isCorrect]
 
             if i == 0:
-                cmpAry[0][j] = [int(j), 0, 0, 0]
+                cmpAry[0][j] = [int(j), 0, 0]
             elif j == 0:
-                cmpAry[i][0] = [0, int(i), 0, 0]
+                cmpAry[i][0] = [0, int(i), 0]
 
     # calculation
     for i in range(1, len(cmp1)+1):
-        # isMatched = False
         for j in range(1, len(cmp2)+1):
-            
             if cmp1[i-1] == cmp2[j-1]:
-            # if cmp1[i-1] == cmp2[j-1] and cmpAry[i][j][3] == 0 and not isMatched:
                 cmpAry[i][j] = copy.deepcopy(cmpAry[i-1][j-1])
 
-                # update Matching Flag
-                # isMatched = True
-                for ii in range(i, len(cmpAry)):
-                    cmpAry[ii][j][3] = 1
-
             else:
-                insertion = sum(cmpAry[i][j-1][:3]) + 1
-                deletion = sum(cmpAry[i-1][j][:3]) + 1
-                substitution = sum(cmpAry[i-1][j-1][:3]) + 1
+                insertion = sum(cmpAry[i][j-1][:]) + 1
+                deletion = sum(cmpAry[i-1][j][:]) + 1
+                substitution = sum(cmpAry[i-1][j-1][:]) + 1
                 minValue = min(insertion, deletion, substitution)
 
                 if minValue == insertion:
-                    cmpAry[i][j] = [int(cmpAry[i][j-1][0])+1, int(cmpAry[i][j-1][1]), int(cmpAry[i][j-1][2]), int(cmpAry[i][j][3])]
+                    cmpAry[i][j] = [int(cmpAry[i][j-1][0])+1, int(cmpAry[i][j-1][1]), int(cmpAry[i][j-1][2])]
                 elif minValue == deletion:
-                    cmpAry[i][j] = [int(cmpAry[i-1][j][0]), int(cmpAry[i-1][j][1])+1, int(cmpAry[i-1][j][2]), int(cmpAry[i][j][3])]
+                    cmpAry[i][j] = [int(cmpAry[i-1][j][0]), int(cmpAry[i-1][j][1])+1, int(cmpAry[i-1][j][2])]
                 elif minValue == substitution:
-                    cmpAry[i][j] = [int(cmpAry[i-1][j-1][0]), int(cmpAry[i-1][j-1][1]), int(cmpAry[i-1][j-1][2])+1, int(cmpAry[i][j][3])]
+                    cmpAry[i][j] = [int(cmpAry[i-1][j-1][0]), int(cmpAry[i-1][j-1][1]), int(cmpAry[i-1][j-1][2])+1]
+        
+        # print("{} / {}".format(i, len(cmp1)))
 
     # print(*cmpAry, sep='\n')
     err_ins = cmpAry[len(cmp1)][len(cmp2)][0]
@@ -145,7 +142,6 @@ def levenshteinDistanceList(cmp1, cmp2):
     correction = len(cmp1) - err_del - err_sub
 
     return err_ins, err_del, err_sub, correction
-
 
 
 def categorizeSTT(expected:str, actual:str, categoryFilter:list, isNA:bool=False):
