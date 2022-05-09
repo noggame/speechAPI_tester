@@ -1,4 +1,6 @@
 from audioop import minmax
+from inspect import iscoroutine
+from itertools import zip_longest
 import json
 from re import L, X
 from data.Vision.FaceInfo import Face
@@ -50,7 +52,7 @@ class FaceTestController(TestController):
                         file_record.write("\n")
                     logging.info(str(testResult))
 
-                    print("expected = {}, actual = {}".format(len(td.expectedList), len(actualResult)))
+                    print("{} >> expected = {}, actual = {}".format(api.__class__.__name__, len(td.expectedList), len(actualResult)))
         
         file_record.close()
 
@@ -65,7 +67,7 @@ class FaceTestController(TestController):
 
         ### get resultList
         if resultList:
-            _resutlList = resultList
+            _resultList = resultList
         elif targetFile:    # get resultList from file
             resultFile = open(targetFile, 'r')
 
@@ -75,12 +77,12 @@ class FaceTestController(TestController):
 
             resultFile.close()
         else:
-            # logging.exception(f'[Exception] {__class__.__name__}:{__name__} - result data is empty')
+            logging.exception(f'[Exception] {__class__.__name__}:{__name__} - result data is empty')
             print("not found result data")
 
 
         ### Anaysis result
-        for result in _resultList:  # type(result) = TestResult
+        for result in _resultList:  # for each picture
             result:TestResult = result
             actualList = result.actual
             expectedList = result.expected
@@ -89,8 +91,8 @@ class FaceTestController(TestController):
             for idx_act in range(len(actualList)): # for each actual
                 eachActualJaccardScore = []
 
-                for exp in expectedList:
-                    # TODO: 실제값 기준 각 기대값 박스와 매칭해보면서 자카드 유사도 계산 > 계산 결과 중 가장 유사도가 높은 배열 한 곳에 [idx, similarity] 값 저장
+                for exp in expectedList:    # for each expected
+                    # 실제값 기준 각 기대값 박스와 매칭해보면서 자카드 유사도 계산 > 계산 결과 중 가장 유사도가 높은 배열 한 곳에 [idx, similarity] 값 저장
                     act:dict = actualList[idx_act]
                     exp:dict = exp
                     rect_act = RectangleBox(act.get('x'), act.get('y'), act.get('width'), act.get('height'))
@@ -103,30 +105,41 @@ class FaceTestController(TestController):
 
             bestResult = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_dectection'))     # [[idx_actual, score]] * len(expectedList)
             _analysisResultList.append(bestResult)
-
+            logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
+            # print(result.source, bestResult)
 
             ### make image
             if record:
-                self._saveAnalizedImage(result.source, record, expectedList, actualList, bestResult)
+                fileName = str(result.source).split('/')
+                fileName = fileName[len(fileName)-1]
+                idx_Ext = str(fileName).rindex('.')
+                saveFilePath = "{}/{}_{}{}".format(record, fileName[:idx_Ext], result.service, fileName[idx_Ext:])
+
+                self._saveAnalizedImage(source=result.source, dest=saveFilePath, expectedList=expectedList, actualList=actualList, analysisResult=bestResult)
+
+        # TODO: 기대/인식 사람 얼굴 수 비교한 결과값 저장 및 반환
 
         return _analysisResultList
 
 
-    def _saveAnalizedImage(self, source:str, record_path:str, expectedList, actualList, analysisResult):
+    def _saveAnalizedImage(self, source:str, dest:str, expectedList, actualList, analysisResult):
         ### init.
         img = Image.open(source)
         draw = ImageDraw.Draw(img)
 
         ### draw rectangle
-        for face_expected, [idx_act, score] in zip(expectedList, analysisResult):
+        for face_expected_info, face_actual_info in zip_longest(expectedList, analysisResult):
             # expected
-            face_expected = Face(x=face_expected['x'], y=face_expected['y'], width=face_expected['width'], height=face_expected['height'], gender=face_expected['gender'])
-            draw.rectangle(xy=[(float(face_expected.x), float(face_expected.y)), (float(face_expected.x)+float(face_expected.width), float(face_expected.y)+float(face_expected.height))], outline="#00FF00FF")
+            if face_expected_info:
+                face_expected = Face(x=face_expected_info['x'], y=face_expected_info['y'], width=face_expected_info['width'], height=face_expected_info['height'], gender=face_expected_info['gender'])
+                draw.rectangle(xy=[(float(face_expected.x), float(face_expected.y)), (float(face_expected.x)+float(face_expected.width), float(face_expected.y)+float(face_expected.height))], outline="#00FF00FF")
 
             # actual
-            face_actual = Face(x=actualList[idx_act]['x'], y=actualList[idx_act]['y'], width=actualList[idx_act]['width'], height=actualList[idx_act]['height'], gender=actualList[idx_act]['gender'])
-            draw.rectangle(xy=[(float(face_actual.x), float(face_actual.y)), (float(face_actual.x)+float(face_actual.width), float(face_actual.y)+float(face_actual.height))], outline="#FF0000FF")
-            draw.text(xy=(float(face_actual.x+5), float(face_actual.y+5)), text=str(round(score, 2)), align='left', fill="#FF0000FF")
+            if face_actual_info and face_actual_info[0] != None:
+                idx_act, score = face_actual_info
+                face_actual = Face(x=actualList[idx_act]['x'], y=actualList[idx_act]['y'], width=actualList[idx_act]['width'], height=actualList[idx_act]['height'], gender=actualList[idx_act]['gender'])
+                draw.rectangle(xy=[(float(face_actual.x), float(face_actual.y)), (float(face_actual.x)+float(face_actual.width), float(face_actual.y)+float(face_actual.height))], outline="#FF0000FF")
+                draw.text(xy=(float(face_actual.x+5), float(face_actual.y+5)), text=str(round(score, 2)), align='left', fill="#FF0000FF")
 
             # # intersection
             # rect_intersection = self._getIntersection(coordinate_A = RectangleBox(x=face_expected.x, y=face_expected.y, width=face_expected.width, height=face_expected.height),
@@ -135,13 +148,8 @@ class FaceTestController(TestController):
             #     draw.line(xy=line, fill="#00FFFFFF", width=2)
             # draw.text(xy=(rect_intersection.x, rect_intersection.y), text=str(round(score, 2)))
 
-
         ### save
-        fileName = source.split('/')
-        fileName = fileName[len(fileName)-1]
-        idx_Ext = str(fileName).rindex('.')
-
-        img.save("{}/{}_rec{}".format(record_path, fileName[:idx_Ext], fileName[idx_Ext:]))
+        img.save(dest)
         img.close()
 
 
@@ -219,11 +227,9 @@ class FaceTestController(TestController):
         if X_diff < W_s and Y_diff < H_s:   # check overlap
             X_i = X_l
             Y_i = Y_l
-            # TODO: 완전히 겹치는 경우 가로/세로 길이 계산도 cover 가능해야함
+            # 완전히 겹치는 경우 가로/세로 길이 계산도 cover
             W_i = (W_l + W_s - abs(X_diff) - abs(X_diff + W_l - W_s))/2
             H_i = (H_l + H_s - abs(Y_diff) - abs(Y_diff + H_l - H_s))/2
-            # W_i = X_s + W_s - X_l
-            # H_i = Y_s + H_s - Y_l
             _intersection = RectangleBox(x=X_i, y=Y_i, width=W_i, height=H_i)
 
         return _intersection
@@ -233,31 +239,49 @@ class FaceTestController(TestController):
         """N(actual) * N(expected) 배열을 입력받아, 각 열(actual)의 값들 중 Jaccard 유사도가 가장 높은 값을 선택해 [idx_actual, score] 데이터 형태로 모은 리스트를 반환\n
         @ 실제값과 기대값의 유사도가 0에 해당하는 데이터는 [None, 0]의 값으로 반환
         """
+
+        ### Example
+        #################################################################################
+        #                 |    exp_01   |  exp_02   |  exp_03   ##   expIdxMatchingWith (EIMW)   
+        # ----------------|-------------|-----------|-----------## -------------------- 
+        #       act_01    |     0.1     |   0.2     |   0.7     ##   2 (idx of exp_03)
+        #       act_02    |     0.8     |   0       |   0.3     ##   0 (idx of exp_01)
+        #       ...                                             ##                      
+        #################################################################################
+        # bestJaccardScore|   [1, 0.8]  | [None, 0] | [0, 0.7]]
+        #################################################################################
+
         if not jaccardScoreList:
-            return None
+            return []
 
-        # print(*jaccardScoreList, sep="\n")
+        bestJaccardScore = []   # jaccardScoreList에서 실제 Rect.와 일치률이 높은 기대값의 Rect.와 매칭시킨 배열
+        expIdxMatchingWith = [None] * len(jaccardScoreList)
 
-        bestJaccardScore = []
-        chosen = [False] * len(jaccardScoreList)
+        for idx_exp in range(len(jaccardScoreList[0])):     # for each expected (col.)
+            bestJaccardScore.append([None, 0])              # [selected_actual_number, best_score]
 
-        for idx_exp in range(len(jaccardScoreList[0])):      # length of num(expected)
-            bestJaccardScore.append([None, 0])
+            for idx_act in range(len(jaccardScoreList)):    # for each actual (row.)
+                bestActIdx, bestScore = bestJaccardScore[idx_exp]
+                curScore = jaccardScoreList[idx_act][idx_exp]
 
-            for idx_act in range(len(jaccardScoreList)):
-                eachScore = jaccardScoreList[idx_act][idx_exp]
+                if curScore > bestScore:    # TODO : Threshold 값 보다 높은 경우에 매칭
 
-                # update [idx, score]
-                if not chosen[idx_act] and eachScore > bestJaccardScore[idx_exp][1]:
-                    prev_chosen_idx = bestJaccardScore[idx_exp][0]
-
-                    if prev_chosen_idx != None:
-                        chosen[prev_chosen_idx] = False
-
-                    chosen[idx_act] = True
-                    bestJaccardScore[idx_exp][0] = idx_act
-                    bestJaccardScore[idx_exp][1] = eachScore
-
-        # print(f" >>> {bestJaccardScore}")
+                    if expIdxMatchingWith[idx_act] == None:
+                        if bestActIdx == None:
+                            # new value (해당 exp_rect 에 대해서 아직 매칭된 결과가 없는 경우)
+                            bestJaccardScore[idx_exp] = [idx_act, curScore]
+                            expIdxMatchingWith[idx_act] = idx_exp
+                        else:
+                            # update (해당 exp_rect 에 대해서 매칭된 결과가 있었으나, 다른 act_rect 와의 일치율이 더 높은 경우)
+                            expIdxMatchingWith[bestActIdx] = None
+                            expIdxMatchingWith[idx_act] = idx_exp
+                            bestJaccardScore[idx_exp] = [idx_act, curScore]
+                    else:
+                        if curScore > jaccardScoreList[idx_act][expIdxMatchingWith[idx_act]]:
+                            # update (해당 exp_rect 에 대해서 매칭된 결과가 있었으나, 다른 exp_rect 와의 매칭으로 이미 정의되었던 act_rect와의 매칭한 결과값이 더 높은 경우)
+                            bestJaccardScore[expIdxMatchingWith[idx_act]] = [None, 0]
+                            expIdxMatchingWith[idx_act] = idx_exp
+                            bestJaccardScore[idx_exp] = [idx_act, curScore]
+                            # TODO : bestJaccardScore[expIdxMatchingWith[idx_act]] 의 값을 새로 쓰면서, expIdxMatchingWith[idx_act] 번째 기대값 항목에 대한 매칭을 새롭게 계산
 
         return bestJaccardScore

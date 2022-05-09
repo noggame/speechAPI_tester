@@ -41,11 +41,13 @@ class TestResult:
         result_json += f'{expectedList}]'
 
         result_json += f', "actual": ['
-        actualList = []
-        for act in self._actual:
-            actualList.append(f'{act}')
-        actualList = ', '.join(actualList)
-        result_json += f'{actualList}]'
+        if self._actual:
+            actualList = []
+            for act in self._actual:
+                actualList.append(f'{act}')
+            actualList = ', '.join(actualList)
+            result_json += f'{actualList}'
+        result_json += ']'
 
 
         # result_str += f'[Expected] : {self.expected}'
