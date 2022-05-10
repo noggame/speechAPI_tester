@@ -389,7 +389,8 @@ class FaceTestController(TestController):
         target_data = None
 
         if data_name == 'FaceCounting':
-            target_data = FaceCountingParser(targetFile="/Users/songdonghun/dataset/vision/face_counting_challenge")   # FaceCounting
+            target_data = FaceCountingParser(targetFile=f"{os.getcwd()}/sample/vision/face_counting_challenge")   # FaceCounting
+            # target_data = ClovaAIParser(f'{os.getcwd()}/sample/voice/stt/ClovaCall')   # ClovaAI
 
         if target_data:
             self.addTestData(target_data)
