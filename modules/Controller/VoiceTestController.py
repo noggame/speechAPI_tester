@@ -286,8 +286,6 @@ class STTTestController(TestController):
 
                 result += '------------------------\n'
 
-        print(result)
-
         return result
         # print(staticRepository)
 

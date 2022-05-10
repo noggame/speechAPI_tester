@@ -29,6 +29,7 @@ def accuracy_stt():
 
     stc = STTTestController()
     result = stc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
+    print(result)
 
     if not result:
         return "empty"
@@ -53,6 +54,7 @@ def accuracy_face():
 
     ftc = FaceTestController()
     result = ftc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
+    print(result)
 
     if not result:
         return "empty"
