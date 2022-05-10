@@ -13,7 +13,7 @@ def hello_world():
     return "<p>HWorld!</p>"
 
 @app.route(f"{base_url}/test/stt", methods=['Post'])
-def accuracy():
+def accuracy_stt():
     try:
         params = json.loads(request.get_data(as_text=True))
     except ValueError as ve:
@@ -35,8 +35,8 @@ def accuracy():
     return str(result)
 
 
-@app.route(f"{base_url}/test/vision", methods=['Post'])
-def accuracy():
+@app.route(f"{base_url}/test/faceDetection", methods=['Post'])
+def accuracy_face():
     try:
         params = json.loads(request.get_data(as_text=True))
     except ValueError as ve:
