@@ -1,7 +1,9 @@
 
 import json
 from flask import Flask, request
-from modules.Accuracy.STTAccuracyToolForAPI import STTAccuracyTool
+from modules.Controller.VisionTestController import FaceTestController as ftc
+from modules.Controller.VoiceTestController import STTTestController as stc
+# from waitress import serve
 
 app = Flask(__name__)
 base_url = ''
@@ -25,8 +27,30 @@ def accuracy():
         'number' : 2
     }
 
-    sat = STTAccuracyTool()
-    result = sat.STTtestWith(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
+    result = stc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
+
+    if not result:
+        return "empty"
+
+    return str(result)
+
+
+@app.route(f"{base_url}/test/vision", methods=['Post'])
+def accuracy():
+    try:
+        params = json.loads(request.get_data(as_text=True))
+    except ValueError as ve:
+        print(ve)
+        return None
+    
+    ### Input
+    testdata = {
+        'data' : params['data_name'],
+        'api' : params['api_name'],
+        'number' : 2
+    }
+
+    result = ftc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
 
     if not result:
         return "empty"
@@ -35,5 +59,7 @@ def accuracy():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5700)
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=9090)
+    # app.run(debug=False, host='127.0.0.1', port=9090)
 

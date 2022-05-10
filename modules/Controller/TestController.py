@@ -14,7 +14,11 @@ class TestController:
     def addAPICaller(self, target:APICaller):
         self._apiList.append(target)
 
-
+    def startTestAndAnalysis(self, data_name, api_name, number=0):
+        """
+        API Test and Analysis method
+        """
+        pass
 
     # TODO : method 파라미터 및 객체 검증 필요
     def startRequest(self, limit:int=0, record:str=None):

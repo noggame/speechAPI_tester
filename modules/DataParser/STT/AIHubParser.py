@@ -1,13 +1,14 @@
 import os
 import re
 import logging
-import pathlib
+
 from data.TestData import TestData
-from modules.AIDataParser.AIDataParser import AIDataParser
+from modules.DataParser.AIDataParser import AIDataParser
 
 class AIHubParser(AIDataParser):
     def __init__(self, targetPath) -> None:
         super().__init__(targetPath)
+
 
     def getTestDataList(self, targetPath: str = None, limit: int = 0):
         _targetPath = self.targetPath if not targetPath else targetPath
@@ -15,34 +16,76 @@ class AIHubParser(AIDataParser):
         _numOftd = 0
 
         try:
-            for root, dirs, files in os.walk(_targetPath):
+            for root, dirs, files in os.walk(f"{_targetPath}/라벨링데이터"):
                 if limit > 0 and _numOftd >= limit:  # limit number of test dataset
                     break
 
-                expInfoPath = f'{root}/0001.txt'
-                soundFilePath = f'{root}/0001.wav'
+                answerFile = None
+                soundFile = None
 
-                if not pathlib.Path(expInfoPath).exists():  # except directory
-                    continue
+                for file in files:
+                    if file.endswith(".txt"):
+                        answerFile = f"{root}/{file}"
+                        soundFile = answerFile.replace("라벨링데이터", "원천데이터")
+                        soundFile = f"{soundFile[:-4]}.wav"
 
-                # id
-                id = root.split('/')
-                id = id[len(id)-1]
+                        # id
+                        idx_id_form_root = answerFile.rindex("KrespSpeech")
+                        id = answerFile[idx_id_form_root+len("KrespSpeech"):0-len(file)]
+                        id = ''.join(id.split('/'))
 
-                # expectedList
-                expList = self.extractExpectedSentence(expectedInfoFile = expInfoPath)
+                        # expectedList
+                        expList = self.extractExpectedSentence(expectedInfoFile = answerFile)
 
-                # test data
-                td = TestData(id = id, expectedList=expList, sampleFilePath=soundFilePath)
-                _testDataList.append(td)
+                        # test data
+                        td = TestData(id=id, expectedList=expList, sampleFilePath=soundFile)
+                        print(td)
+                        _testDataList.append(td)
 
-                # inc.
-                _numOftd += 1
+                        # inc.
+                        _numOftd += 1
 
         except FileNotFoundError:
             logging.error('[ERR] AIHubParser - ExpectedTargetDirectory not found. check the target path')
 
         return _testDataList
+
+
+    ### deprecated
+    # def getTestDataList(self, targetPath: str = None, limit: int = 0):
+    #     _targetPath = self.targetPath if not targetPath else targetPath
+    #     _testDataList = []
+    #     _numOftd = 0
+
+    #     try:
+    #         for root, dirs, files in os.walk(_targetPath):
+    #             if limit > 0 and _numOftd >= limit:  # limit number of test dataset
+    #                 break
+
+    #             expInfoPath = f'{root}/0001.txt'
+    #             soundFilePath = f'{root}/0001.wav'
+
+    #             if not pathlib.Path(expInfoPath).exists():  # except directory
+    #                 continue
+
+    #             # id
+    #             id = root.split('/')
+    #             id = id[len(id)-1]
+
+    #             # expectedList
+    #             expList = self.extractExpectedSentence(expectedInfoFile = expInfoPath)
+
+    #             # test data
+    #             td = TestData(id = id, expectedList=expList, sampleFilePath=soundFilePath)
+    #             _testDataList.append(td)
+
+    #             # inc.
+    #             _numOftd += 1
+
+    #     except FileNotFoundError:
+    #         logging.error('[ERR] AIHubParser - ExpectedTargetDirectory not found. check the target path')
+
+    #     return _testDataList
 
 
     def extractExpectedSentence(self, expectedInfoFile):

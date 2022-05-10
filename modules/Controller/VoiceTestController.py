@@ -1,21 +1,66 @@
+import json
+import config.cfgParser as cfg
 import logging
+import os
 import re
-from typing import Set
+from datetime import datetime
+
 from data.TestData import TestData
 from data.Result import TestResult
-from modules.DataParser.AIDataParser import AIDataParser
-from modules.APICaller.APICaller import APICaller
 from data.ResultRepository import STTResultRepository
-from modules.Accuracy.AccuracyFilter import AccuracyFilter as AF
-import json
-import modules.Accuracy.STTAccuracyTool as sat
-
+from modules.Accuracy.AccuracyFilter import AccuracyFilter
 from modules.Controller.TestController import TestController
+# API Caller
+from modules.APICaller.APICaller import APICaller
+from modules.APICaller.STT.KT_STT import KT_STT
+from modules.APICaller.STT.Kakao_STT import Kakao_STT
+# DataParser
+from modules.DataParser.AIDataParser import AIDataParser
+from modules.DataParser.STT.AIHubParser import AIHubParser
+from modules.DataParser.STT.ClovaAIParser import ClovaAIParser
 
 # Test DataSet 관리, API호출과 기대값 비교, 통계 등 테스트 수행
 class STTTestController(TestController):
     def __init__(self) -> None:
         super().__init__()
+
+    def startTestAndAnalysis(self, data_name, api_name, number=0):
+        """
+        API Test and Analysis method
+        """
+        ### create ID with time
+        now = datetime.now()
+        current_time = now.strftime("%Y%m%d_%H%M%S_")
+        time_stamp = str(current_time)+str(now.microsecond)
+
+        ### Environment
+        filePath = {}
+        filePath['log'] = f'{os.getcwd()}/logs/log_{time_stamp}.log'
+        filePath['result'] = f'{os.getcwd()}/logs/result_stt_{time_stamp}.log'
+        filePath['analysis'] = f'{os.getcwd()}/logs/analysis_stt_{time_stamp}.log'
+        logging.basicConfig(filename=filePath['log'], level=logging.DEBUG, format='%(asctime)s %(message)s') # set Log
+        target_data = self.__setTestData(data_name)     # set Data (target)
+        target_api = self.__setAPICaller(api_name)        # set API
+        if target_data == None or target_api == None:
+            return None
+
+
+        ### STT API 호출 및 결과 저장
+        sttResultList = self.startRequest(limit=number, record=filePath['result'])    # number개의 샘플 테스트
+
+
+        ### 테스트 결과 파일 불러와 결과 반환
+        analysisResultList = self.startAnalysis(accuracyFilter=[AccuracyFilter.WER],
+                                                categoryFilter=[],
+                                                sttResultData = None,
+                                                # sttResultData = sttResultList,
+                                                targetFile = filePath['result'],
+                                                record = filePath['analysis'])
+
+        return analysisResultList
+
+
+
 
     def startRequest(self, limit:int=0, record:str=None):
         _trList = []
@@ -245,6 +290,44 @@ class STTTestController(TestController):
 
         return result
         # print(staticRepository)
+
+
+    def __setTestData(self, data_name):
+        target_data = None
+
+        if data_name == 'ClovaCall':
+            target_data = ClovaAIParser(f'{os.getcwd()}/sample/voice/stt/ClovaCall')   # ClovaAI
+            # target_data = ClovaAIParser('/mnt/d/dataset/voice/stt/ClovaCall')   # ClovaAI
+        elif data_name == 'AIHub':
+            target_data = AIHubParser(f'{os.getcwd()}/sample/voice/stt/고객응대음성_sample')        # AIHub
+            # target_data = AIHubParser('/mnt/d/dataset/voice/stt/..../sample/sample_100')        # AIHub
+
+        if target_data:
+            self.addTestData(target_data)
+        
+        return target_data
+
+
+    def __setAPICaller(self, api_name):
+        target_api = None
+
+        if api_name == 'KT':
+            target_api = KT_STT(options={
+                'client_id': cfg.get('kt', 'client_id'),
+                'client_key': cfg.get('kt', 'client_key'),
+                'client_secret': cfg.get('kt', 'client_secret')
+            })
+
+        elif api_name == 'Kakao':
+            target_api = Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_sdh'))    # SDH
+            # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['KJH'])         # KJH
+            # kakaoapi = Kakao_STT(url='https://kakaoi-newtone-openapi.kakao.com/v1/recognize', key=key.kakao['YJE'])         # YJE
+
+
+        if target_api:
+            self.addAPICaller(target_api)
+
+        return target_api
 
 
 

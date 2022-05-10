@@ -1,11 +1,15 @@
 # from audioop import minmax
 # from inspect import iscoroutine
+from datetime import datetime
 from itertools import zip_longest
 import json
+import os
 # from re import L, X
 from data.Vision.FaceInfo import Face
 from data.Vision.Image import RectangleBox
 from data.ResultRepository import FaceResultRepository
+from modules.APICaller.Vision.KT_FaceDetect import KT_FaceAPI
+from modules.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceAPI
 from modules.DataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
 from data.TestData import TestData
@@ -14,10 +18,44 @@ from modules.Controller.TestController import TestController
 import logging
 from PIL import Image, ImageDraw
 import config.cfgParser as cfg
+from modules.DataParser.Vision.FaceDetectParser import FaceCountingParser
 
 class FaceTestController(TestController):
     def __init__(self) -> None:
         super().__init__()
+
+
+    def startTestAndAnalysis(self, data_name, api_name, number=0):
+        """
+        API Test and Analysis method
+        """
+        ### create ID with time
+        now = datetime.now()
+        current_time = now.strftime("%Y%m%d_%H%M%S_")
+        time_stamp = str(current_time)+str(now.microsecond)
+
+        ### Environment
+        filePath = {}
+        filePath['log'] = f'{os.getcwd()}/logs/log_{time_stamp}.log'
+        filePath['result'] = f'{os.getcwd()}/logs/result_faceDetection_{time_stamp}.log'
+        filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'
+        logging.basicConfig(filename=filePath['log'], level=logging.DEBUG, format='%(asctime)s %(message)s') # set Log
+        target_data = self.__setTestData(data_name)     # set Data (target)
+        target_api = self.__setAPICaller(api_name)      # set API
+        if target_data == None or target_api == None:
+            return None
+
+
+        ### STT API 호출 및 결과 저장
+        sttResultList = self.startRequest(limit=number, record=filePath['result'])    # number개의 샘플 테스트
+
+
+        ### 테스트 결과 파일 불러와 결과 반환
+        analysisResultList = self.startAnalysis(targetFile = filePath['result'], record = filePath['analysis'])
+
+
+        return analysisResultList
+
 
     def startRequest(self, limit:int=0, record:str=None):
         _testResultList = []
@@ -345,3 +383,30 @@ class FaceTestController(TestController):
                             # TODO : bestJaccardScore[expIdxMatchingWith[idx_act]] 의 값을 새로 쓰면서, expIdxMatchingWith[idx_act] 번째 기대값 항목에 대한 매칭을 새롭게 계산
 
         return bestJaccardScore
+
+
+    def __setTestData(self, data_name):
+        target_data = None
+
+        if data_name == 'FaceCounting':
+            target_data = FaceCountingParser(targetFile="/Users/songdonghun/dataset/vision/face_counting_challenge")   # FaceCounting
+
+        if target_data:
+            self.addTestData(target_data)
+        
+        return target_data
+
+
+    def __setAPICaller(self, api_name):
+        target_api = None
+
+        if api_name == 'KT':
+            target_api = KT_FaceAPI(url=cfg.get('kt', 'url_face'), options={"threshold":0.5})
+
+        elif api_name == 'Kakao':
+            target_api = Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh'))
+
+        if target_api:
+            self.addAPICaller(target_api)
+
+        return target_api
