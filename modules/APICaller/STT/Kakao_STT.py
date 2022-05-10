@@ -56,7 +56,7 @@ class Kakao_STT(APICaller):
                 ttsResultList.append("")
                 logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found, response = {response}')
             else:
-                ttsResultList.append(json.loads(finalResult)['value'])
+                ttsResultList.append(f"{json.loads(finalResult)['value']}")
 
 
         elif response.status_code == 401:
