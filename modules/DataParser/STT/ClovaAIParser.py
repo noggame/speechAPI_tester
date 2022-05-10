@@ -1,8 +1,8 @@
 import logging
 import json
 from data.TestData import TestData
+from modules.DataParser.AIDataParser import AIDataParser
 
-from modules.AIDataParser.AIDataParser import AIDataParser
 
 class ClovaAIParser(AIDataParser):
 
