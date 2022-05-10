@@ -10,16 +10,16 @@ from modules.APICaller.STT.Kakao_STT import Kakao_STT
 
 from modules.Controller.VoiceTestController import STTTestController
 
-logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
-                    level=logging.DEBUG,
-                    format='%(asctime)s %(message)s')
+# logging.basicConfig(filename=f'{os.getcwd()}/logs/log_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log',
+#                     level=logging.DEBUG,
+#                     format='%(asctime)s %(message)s')
 
 ### Test TestController
 tc = STTTestController()
 # tc.add_STT_TestData(AIHubParser(f'{os.getcwd()}/sample/sample_100'))
 tc.addTestData(ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset'))
-tc.addAPICaller(KT_STT(options={'client_id': cfg.get('kt', 'cliend_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'cliend_secret')}))
-tc.addAPICaller(Kakao_STT(url=cfg.get('kt', 'url_stt'), key=cfg.get('kt', 'key_sdh')))
+tc.addAPICaller(KT_STT(options={'client_id': cfg.get('kt', 'client_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'client_secret')}))
+tc.addAPICaller(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_sdh')))
 
 ### STT API 호출 및 결과 저장
 # sttResultList = tc.startSTTRequest(record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')    # 전체 데이터 테스트

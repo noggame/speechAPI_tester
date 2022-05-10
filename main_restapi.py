@@ -1,8 +1,8 @@
 
 import json
 from flask import Flask, request
-from modules.Controller.VisionTestController import FaceTestController as ftc
-from modules.Controller.VoiceTestController import STTTestController as stc
+from modules.Controller.VisionTestController import FaceTestController
+from modules.Controller.VoiceTestController import STTTestController
 # from waitress import serve
 
 app = Flask(__name__)
@@ -27,6 +27,7 @@ def accuracy_stt():
         'number' : 2
     }
 
+    stc = STTTestController()
     result = stc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
 
     if not result:
@@ -50,6 +51,7 @@ def accuracy_face():
         'number' : 2
     }
 
+    ftc = FaceTestController()
     result = ftc.startTestAndAnalysis(data_name=testdata["data"], api_name=testdata["api"], number=testdata["number"])
 
     if not result:
