@@ -1,6 +1,5 @@
 sample*
 __pycache__/
-result*
 logs/
 .vscode
 config/
