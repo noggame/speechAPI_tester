@@ -24,7 +24,7 @@ class ClovaAIParser(AIDataParser):
 
                 # get data
                 wav, expected, speakerId = expectedInfo['wav'], expectedInfo['text'], expectedInfo['speaker_id']
-                td = TestData(id=wav[:-4], expectedList=[expected], sampleFilePath=f'{_targetPath}/wavs_train/{wav}')
+                td = TestData(id=wav[:-4], expectedList=[f"\"{expected}\""], sampleFilePath=f'{_targetPath}/wavs_train/{wav}')
                 _testDataList.append(td)
 
                 # inc.
