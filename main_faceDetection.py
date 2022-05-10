@@ -13,13 +13,12 @@ curTime = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 ### main
 ftc = FaceTestController()
-# ftc.addAPICaller(Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh')))      # TODO: Threshold 값에 따라 얼굴 인식으로 처리
-# ftc.addAPICaller(KT_FaceAPI(url=cfg.get('kt', 'url_face'), options={"threshold":0.5}))
-# ftc.addTestData(FaceCountingParser(targetFile="/Users/songdonghun/dataset/vision/Face Counting Challenge"))
-# resultList = ftc.startRequest(limit=20, record=f"{os.getcwd()}/logs/Vision/{curTime}_result.txt")
+ftc.addAPICaller(Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh')))      # TODO: Threshold 값에 따라 얼굴 인식으로 처리
+ftc.addAPICaller(KT_FaceAPI(url=cfg.get('kt', 'url_face'), options={"threshold":0.5}))
+ftc.addTestData(FaceCountingParser(targetFile="/Users/songdonghun/dataset/vision/Face Counting Challenge"))
+resultList = ftc.startRequest(limit=5, record=f"{os.getcwd()}/logs/Vision/{curTime}_result.txt")
 
-list = ftc.startAnalysis(targetFile=f"{os.getcwd()}/logs/Vision/result_20.txt", record=f'/Users/songdonghun/dataset/vision/Face Counting Challenge/analysis_result')
-# list = ftc.startAnalysis(targetFile=f"{os.getcwd()}/logs/Vision/20220509_084236_result.txt", record=f'/Users/songdonghun/dataset/vision/Face Counting Challenge/analysis_result')
+testResult = ftc.startAnalysis(targetFile=f"{os.getcwd()}/logs/Vision/{curTime}_result.txt", record=f'/Users/songdonghun/dataset/vision/Face Counting Challenge/analysis_result')
+print(testResult)
 # print(*list, sep='\n\n')
-# ftc.startAnalysis(resultList=resultList)
 

@@ -2,7 +2,7 @@ import logging
 import os
 import config.cfgParser as cfg
 from datetime import datetime
-from modules.TestController import TestController
+from modules.Controller.VoiceTestController import STTTestController
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
 from modules.DataParser.STT.AIHubParser import AIHubParser
@@ -16,7 +16,7 @@ from datetime import datetime
 class STTAccuracyTool:
 
     def __init__(self) -> None:
-        self._tc = TestController()
+        self._tc = STTTestController()
 
     def STTtestWith(self, data_name, api_name, number=0):
         now = datetime.now()
@@ -37,11 +37,11 @@ class STTAccuracyTool:
 
         # STT API 호출 및 결과 저장
         resultLogPath = f'{os.getcwd()}/logs/result_stt_{time_stamp}.log'
-        sttResultList = self._tc.startSTTRequest(limit=number, record=f'{resultLogPath}')    # 전체 데이터 테스트
+        sttResultList = self._tc.startRequest(limit=number, record=f'{resultLogPath}')    # 전체 데이터 테스트
         # sttResultList = tc.startSTTRequest(limit=10, record=f'{os.getcwd()}/logs/result_stt_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log') # 데이터 개수 제한
 
         ### 테스트 결과 파일 불러와 결과 도출
-        analysisResultList = self._tc.startAnalysisSTTResult(accuracyFilter=[AccuracyFilter.WER],
+        analysisResultList = self._tc.startAnalysis(accuracyFilter=[AccuracyFilter.WER],
                                                     categoryFilter=[],
                                                     sttResultData = None,
                                                     # sttResultData = sttResultList,
@@ -62,7 +62,7 @@ class STTAccuracyTool:
 
         
         if target_data:
-            self._tc.add_STT_TestData(target_data)
+            self._tc.addTestData(target_data)
         
         return target_data
 
@@ -84,7 +84,7 @@ class STTAccuracyTool:
 
 
         if target_api:
-            self._tc.add_STT_API(target_api)
+            self._tc.addAPICaller(target_api)
 
         return target_api
         

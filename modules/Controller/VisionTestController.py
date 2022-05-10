@@ -1,14 +1,15 @@
-from audioop import minmax
-from inspect import iscoroutine
+# from audioop import minmax
+# from inspect import iscoroutine
 from itertools import zip_longest
 import json
-from re import L, X
+# from re import L, X
 from data.Vision.FaceInfo import Face
 from data.Vision.Image import RectangleBox
+from data.ResultRepository import FaceResultRepository
 from modules.DataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
 from data.TestData import TestData
-from data.TestResult import TestResult
+from data.Result import TestResult
 from modules.Controller.TestController import TestController
 import logging
 from PIL import Image, ImageDraw
@@ -60,10 +61,10 @@ class FaceTestController(TestController):
 
 
     def startAnalysis(self, accuracyFilter:list=None, categoryFilter:list=None, resultList:list=None, targetFile:str=None, record:str=None):
-        _expectedList = []
         _resultList = []
-        _analysisResultList = []
+        _analysisRepo = FaceResultRepository()
         th_detection = float(cfg.get('vision', 'threshold_face_dectection'))
+
 
         ### get resultList
         if resultList:
@@ -104,7 +105,7 @@ class FaceTestController(TestController):
                 jaccardScoreList.append(eachActualJaccardScore)
 
             bestResult = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_dectection'))     # [[idx_actual, score]] * len(expectedList)
-            _analysisResultList.append(bestResult)
+            _analysisRepo.addAnalysisData(testResult=result, bestResult=bestResult)
             logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
             # print(result.source, bestResult)
 
@@ -114,12 +115,63 @@ class FaceTestController(TestController):
                 fileName = fileName[len(fileName)-1]
                 idx_Ext = str(fileName).rindex('.')
                 saveFilePath = "{}/{}_{}{}".format(record, fileName[:idx_Ext], result.service, fileName[idx_Ext:])
-
                 self._saveAnalizedImage(source=result.source, dest=saveFilePath, expectedList=expectedList, actualList=actualList, analysisResult=bestResult)
+                logging.info("save image : {}".format(saveFilePath))
 
-        # TODO: 기대/인식 사람 얼굴 수 비교한 결과값 저장 및 반환
 
-        return _analysisResultList
+        ### 기대/인식 사람 얼굴 수 비교한 결과값 저장(record param.) 및 반환
+        return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) # TODO: Vision - FaceDetection 분석 결과 저장
+
+
+    def getStaticInfo(self, accuracyFilter:list=None, categoryFilter:list=None, analysisData:dict=None, targetFile:str=None, record:str=None):
+        staticRepo = {"sample": 0}
+        # staticRepo = {
+        #    "sample":35000,
+        #    "KT_FaceDetect":{
+        #       "expected":100,
+        #       "actual":50,
+        #       "matching":50
+        #    },
+        #    "Kakao_FaceDetect":{
+        #       "expected":100,
+        #       "actual":60,
+        #       "matching":60
+        #    }
+        #   ...
+        # }
+
+
+        ### analysis data
+        for id in analysisData:
+            staticRepo['sample'] += 1
+
+            for static in analysisData[id]['statics']:
+                service = static['service']
+
+                if service not in staticRepo:
+                    staticRepo[service] = {'expected':0, 'actual':0, 'matching':0}
+                
+                staticRepo[service]['expected'] += static['expected']
+                staticRepo[service]['actual'] += static['actual']
+                staticRepo[service]['matching'] += static['matching']
+
+
+        ### Result formating
+        result = "---------------------------\n"
+        result += "Result of Face Detection"
+        for static in staticRepo:
+            if static == 'sample':
+                result += f" (sample : {staticRepo[static]})\n"
+                result += "---------------------------\n"
+                continue
+
+            exp = staticRepo[static]['expected']
+            act = staticRepo[static]['actual']
+            mat = staticRepo[static]['matching']
+            acc = round(mat/exp*100, 2)
+            result += "{} : ACC = {} % (exp:{}, act:{}, mat:{})\n".format(static, str(acc).ljust(5), exp, act, mat)
+
+        return result
 
 
     def _saveAnalizedImage(self, source:str, dest:str, expectedList, actualList, analysisResult):
@@ -128,18 +180,16 @@ class FaceTestController(TestController):
         draw = ImageDraw.Draw(img)
 
         ### draw rectangle
-        for face_expected_info, face_actual_info in zip_longest(expectedList, analysisResult):
+        for face_expected_info, face_actual_info in zip_longest(expectedList, actualList):
             # expected
             if face_expected_info:
                 face_expected = Face(x=face_expected_info['x'], y=face_expected_info['y'], width=face_expected_info['width'], height=face_expected_info['height'], gender=face_expected_info['gender'])
                 draw.rectangle(xy=[(float(face_expected.x), float(face_expected.y)), (float(face_expected.x)+float(face_expected.width), float(face_expected.y)+float(face_expected.height))], outline="#00FF00FF")
-
+            
             # actual
-            if face_actual_info and face_actual_info[0] != None:
-                idx_act, score = face_actual_info
-                face_actual = Face(x=actualList[idx_act]['x'], y=actualList[idx_act]['y'], width=actualList[idx_act]['width'], height=actualList[idx_act]['height'], gender=actualList[idx_act]['gender'])
-                draw.rectangle(xy=[(float(face_actual.x), float(face_actual.y)), (float(face_actual.x)+float(face_actual.width), float(face_actual.y)+float(face_actual.height))], outline="#FF0000FF")
-                draw.text(xy=(float(face_actual.x+5), float(face_actual.y+5)), text=str(round(score, 2)), align='left', fill="#FF0000FF")
+            if face_actual_info:
+                face_actual = Face(x=face_actual_info['x'], y=face_actual_info['y'], width=face_actual_info['width'], height=face_actual_info['height'], gender=face_actual_info['gender'])
+                draw.rectangle(xy=[(float(face_actual.x), float(face_actual.y)), (float(face_actual.x)+float(face_actual.width), float(face_actual.y)+float(face_actual.height))], outline="#0000FFFF")
 
             # # intersection
             # rect_intersection = self._getIntersection(coordinate_A = RectangleBox(x=face_expected.x, y=face_expected.y, width=face_expected.width, height=face_expected.height),
@@ -147,6 +197,16 @@ class FaceTestController(TestController):
             # for line in self._getRectangleBoundaries(rect_intersection):
             #     draw.line(xy=line, fill="#00FFFFFF", width=2)
             # draw.text(xy=(rect_intersection.x, rect_intersection.y), text=str(round(score, 2)))
+
+        # matching
+        for face_matching_info in analysisResult:
+            # face_matching_info and 
+            if face_matching_info[0] != None:
+                idx_act, score = face_matching_info
+                face_matching = Face(x=actualList[idx_act]['x'], y=actualList[idx_act]['y'], width=actualList[idx_act]['width'], height=actualList[idx_act]['height'], gender=actualList[idx_act]['gender'])
+                draw.rectangle(xy=[(float(face_matching.x), float(face_matching.y)), (float(face_matching.x)+float(face_matching.width), float(face_matching.y)+float(face_matching.height))], outline="#FF0000FF")
+                draw.text(xy=(float(face_matching.x+5), float(face_matching.y+5)), text=str(round(score, 2)), align='left', fill="#FF0000FF")
+
 
         ### save
         img.save(dest)

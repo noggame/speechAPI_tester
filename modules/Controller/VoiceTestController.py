@@ -2,11 +2,10 @@ import logging
 import re
 from typing import Set
 from data.TestData import TestData
-from data.TestResult import TestResult
-from data.Vision.FaceInfo import Face
+from data.Result import TestResult
 from modules.DataParser.AIDataParser import AIDataParser
 from modules.APICaller.APICaller import APICaller
-from modules.Analysis.VoiceAnalyzer import STTResultAnalyzer
+from data.ResultRepository import STTResultRepository
 from modules.Accuracy.AccuracyFilter import AccuracyFilter as AF
 import json
 import modules.Accuracy.STTAccuracyTool as sat
@@ -67,7 +66,7 @@ class STTTestController(TestController):
     def getStaticInfo(self, accuracyFilter, categoryFilter, sttResultData, targetFile, record):
         targetFile = open(targetFile, 'r')
         dataList = targetFile.readlines()
-        _analysisRepo = STTResultAnalyzer()
+        _analysisRepo = STTResultRepository()
 
         for i in range(0, len(dataList), len(self._apiList)):
             apiResultList = []
@@ -100,7 +99,7 @@ class STTTestController(TestController):
 
     def startAnalysis(self, accuracyFilter:list, categoryFilter:list=None, sttResultData:list=None, targetFile:str=None, record:str=None):
 
-        _analysisRepo = STTResultAnalyzer()
+        _analysisRepo = STTResultRepository()
 
 
         ### get ResultList.
@@ -145,7 +144,7 @@ class STTTestController(TestController):
         return self._getStatics(analysisRepo=_analysisRepo, record=record)
 
 
-    def _getStatics(self, analysisRepo:STTResultAnalyzer, record:str=None):
+    def _getStatics(self, analysisRepo:STTResultRepository, record:str=None):
 
         _ar:dict = json.loads(str(analysisRepo).replace("\'", "\""))
 

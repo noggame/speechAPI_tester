@@ -133,7 +133,7 @@ def levenshteinDistanceList(cmp1, cmp2):
                 elif minValue == substitution:
                     cmpAry[i][j] = [int(cmpAry[i-1][j-1][0]), int(cmpAry[i-1][j-1][1]), int(cmpAry[i-1][j-1][2])+1]
         
-        # print("{} / {}".format(i, len(cmp1)))
+        print("{} / {}".format(i, len(cmp1)))
 
     # print(*cmpAry, sep='\n')
     err_ins = cmpAry[len(cmp1)][len(cmp2)][0]

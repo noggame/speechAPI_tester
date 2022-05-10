@@ -21,3 +21,4 @@ RUN python3 -m pip install requests_toolbelt pydub numpy librosa
 
 
 # docker run -it --name test_python -v /mnt/d/workspace/python/speechAPI_tester:/usr/src -p 9090:9090 stt_api:1.0 /bin/bash
+# docker run -it --name test_python -v /mnt/d/workspace/python/speechAPI_tester:/usr/src -v /mnt/d/dataset:/usr/src/dataset --network api-net -p 9090:9090 stt_api:1.0 /bin/bash
