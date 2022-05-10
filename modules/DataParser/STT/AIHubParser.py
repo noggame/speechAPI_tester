@@ -141,6 +141,6 @@ class AIHubParser(AIDataParser):
 
             # 후처리 및 저장
             combSentence = re.sub("[(n\/)(u\/)(\/)]*", '', combSentence)        # ['n/', 'u/', '/'] 제거
-            combList.append(combSentence.strip())
+            combList.append(f"\"{combSentence.strip()}\"")
 
         return combList
