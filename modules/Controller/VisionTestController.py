@@ -38,7 +38,8 @@ class FaceTestController(TestController):
         filePath = {}
         filePath['log'] = f'{os.getcwd()}/logs/log_{time_stamp}.log'
         filePath['result'] = f'{os.getcwd()}/logs/result_faceDetection_{time_stamp}.log'
-        filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'
+        # filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'
+        filePath['resultImgaeDir'] = f'{os.getcwd()}/sample/vision/face_counting_challenge/temp_resultImage'
         logging.basicConfig(filename=filePath['log'], level=logging.DEBUG, format='%(asctime)s %(message)s') # set Log
         target_data = self.__setTestData(data_name)     # set Data (target)
         target_api = self.__setAPICaller(api_name)      # set API
@@ -51,7 +52,7 @@ class FaceTestController(TestController):
 
 
         ### 테스트 결과 파일 불러와 결과 반환
-        analysisResultList = self.startAnalysis(targetFile = filePath['result'], record = filePath['analysis'])
+        analysisResultList = self.startAnalysis(targetFile = filePath['result'], record = filePath['resultImgaeDir'])
 
 
         return analysisResultList
