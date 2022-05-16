@@ -36,10 +36,11 @@ class FaceTestController(TestController):
 
         ### Environment
         filePath = {}
-        filePath['log'] = f'{os.getcwd()}/logs/log_{time_stamp}.log'
-        filePath['result'] = f'{os.getcwd()}/logs/result_faceDetection_{time_stamp}.log'
-        # filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'
-        filePath['resultImgaeDir'] = f'{os.getcwd()}/sample/vision/face_counting_challenge/temp_resultImage'
+        filePath['log'] = "{}/log_{}.log".format(cfg.get("system","log_dir"), time_stamp)
+        filePath['result'] = "{}/result_faceDetection_{}.log".format(cfg.get("system","result_dir"), time_stamp)
+        # filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'  # TODO: 결과 로그파일 저장
+        filePath['resultImgaeDir'] = cfg.get("system","output_dir")
+        # f'{os.getcwd()}/sample/vision/face_counting_challenge/temp_resultImage'
         logging.basicConfig(filename=filePath['log'], level=logging.DEBUG, format='%(asctime)s %(message)s') # set Log
         target_data = self.__setTestData(data_name)     # set Data (target)
         target_api = self.__setAPICaller(api_name)      # set API
@@ -102,7 +103,7 @@ class FaceTestController(TestController):
     def startAnalysis(self, accuracyFilter:list=None, categoryFilter:list=None, resultList:list=None, targetFile:str=None, record:str=None):
         _resultList = []
         _analysisRepo = FaceResultRepository()
-        th_detection = float(cfg.get('vision', 'threshold_face_dectection'))
+        th_detection = float(cfg.get('vision', 'threshold_face_detection'))
 
 
         ### get resultList
@@ -143,7 +144,7 @@ class FaceTestController(TestController):
 
                 jaccardScoreList.append(eachActualJaccardScore)
 
-            bestResult = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_dectection'))     # [[idx_actual, score]] * len(expectedList)
+            bestResult = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_matching'))     # [[idx_actual, score]] * len(expectedList)
             _analysisRepo.addAnalysisData(testResult=result, bestResult=bestResult)
             logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
             # print(result.source, bestResult)
