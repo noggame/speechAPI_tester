@@ -18,7 +18,7 @@ from modules.Controller.VoiceTestController import STTTestController
 tc = STTTestController()
 # tc.add_STT_TestData(AIHubParser(f'{os.getcwd()}/sample/sample_100'))
 tc.addTestData(ClovaAIParser(f'{os.getcwd()}/sample/clova_dataset'))
-tc.addAPICaller(KT_STT(options={'client_id': cfg.get('kt', 'client_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'client_secret')}))
+# tc.addAPICaller(KT_STT(options={'client_id': cfg.get('kt', 'client_id'), 'client_key': cfg.get('kt', 'client_key'), 'client_secret': cfg.get('kt', 'client_secret')}))
 tc.addAPICaller(Kakao_STT(url=cfg.get('kakao', 'url_stt'), key=cfg.get('kakao', 'key_sdh')))
 
 ### STT API 호출 및 결과 저장

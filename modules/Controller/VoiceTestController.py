@@ -80,6 +80,8 @@ class STTTestController(TestController):
                 for eachAPI in self._apiList:
                     api:APICaller = eachAPI
 
+                    # TODO: testData (td)의 id 및 종류와 api의 이름으로부터 DB에서 데이터 검색 후 없는 경우 request 요청
+                    # 해당 값이 있는 경우는 actualResult의 값을 DB에서 불러온 값으로 입력
                     actualResult = api.request(targetFile=td.sampleFilePath)  # api response
                     if not actualResult:
                         print(f'[Exception] {api.__class__.__name__} request failed.')
