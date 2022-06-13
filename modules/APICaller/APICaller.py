@@ -3,7 +3,7 @@ from typing import List
 
 
 class APICaller:
-    def __init__(self, url, key, targetFile, options=None) -> None:
+    def __init__(self, url, key, targetFile=None, options=None) -> None:
         self._url = url
         self._key = key
         self._targetFile = targetFile

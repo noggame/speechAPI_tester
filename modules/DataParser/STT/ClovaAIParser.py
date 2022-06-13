@@ -6,7 +6,7 @@ from modules.DataParser.AIDataParser import AIDataParser
 
 class ClovaAIParser(AIDataParser):
 
-    def __init__(self, targetPath) -> None:
+    def __init__(self, targetPath:str=None) -> None:
         super().__init__(targetPath)
 
     def getTestDataList(self, targetPath: str = None, limit: int = 0):

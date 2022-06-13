@@ -1,6 +1,6 @@
 
 class AIDataParser:
-    def __init__(self, targetPath) -> None:
+    def __init__(self, targetPath:str=None) -> None:
         self._targetPath = targetPath
 
     @property

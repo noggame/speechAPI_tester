@@ -10,7 +10,7 @@ import json
 
 class KT_STT(APICaller):
 
-    def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
+    def __init__(self, url, key, targetFile=None, options=None) -> None:
         super().__init__(url, key, targetFile, options)
 
     def request(self, url=None, key=None, targetFile=None, options=None) -> List:
@@ -18,19 +18,19 @@ class KT_STT(APICaller):
         _url = url if url else self.url
         _key = key if key else self.key
         _targetFile = targetFile if targetFile else self.targetFile
-        _options = {}
+        _options = options if options else self.options
 
-        try:
-            if options:
-                _options['client_id'] = options['client_id']
-                _options['client_key'] = options['client_key']
-                _options['client_secret'] = options['client_secret']
-            else:
-                _options['client_id'] = self.options['client_id']
-                _options['client_key'] = self.options['client_key']
-                _options['client_secret'] = self.options['client_secret']
-        except TypeError:
-            logging.error(f'[ERR] {__class__.__name__} - wrong options input in {__name__}')
+        # try:
+        #     if options:
+        #         _options['client_id'] = options['client_id']
+        #         _options['client_key'] = options['client_key']
+        #         _options['client_secret'] = options['client_secret']
+        #     else:
+        #         _options['client_id'] = self.options['client_id']
+        #         _options['client_key'] = self.options['client_key']
+        #         _options['client_secret'] = self.options['client_secret']
+        # except TypeError:
+        #     logging.error(f'[ERR] {__class__.__name__} - wrong options input in {__name__}')
 
         # convert soundFile.format to mp3
         if not str(_targetFile).endswith('.mp3'):
@@ -39,9 +39,9 @@ class KT_STT(APICaller):
 
         # set - KT STT Client
         kt_sttClient = KT_STT_SDK()
-        kt_sttClient.setAuth(clientKey=_options['client_key'],
-                            clientId=_options['client_id'],
-                            clientSecret=_options['client_secret'])
+        kt_sttClient.setAuth(clientKey=_key['client_key'],
+                            clientId=_key['client_id'],
+                            clientSecret=_key['client_secret'])
 
         # request options
         stt_mode = 2
@@ -57,6 +57,7 @@ class KT_STT(APICaller):
             audio_data = file.read()
             result_json:dict = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
             logging.info(f'response of kt_stt = {result_json}')
+
 
             if isstring(result_json):
                 result_json = json.loads(result_json)

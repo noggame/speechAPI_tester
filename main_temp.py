@@ -1,64 +1,67 @@
+# -*- coding: utf-8 -*-
+
+from itertools import zip_longest
 from operator import itemgetter
 import os
 import json
 import re
-from shutil import copyfile
+from tkinter import EXCEPTION
 
 import config.cfgParser as cfg
 import requests
 from datetime import datetime
+from data.TestData import TestData
 from data.Vision.FaceInfo import Face
 from modules.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceAPI
-from modules.TestController import TestController
 from PIL import Image, ImageDraw
 import csv
+from data.Vision.Image import RectangleBox
+import modules.Accuracy.STTAccuracyTool as sta
+from modules.Controller.TestController import TestController, TestControllerWithDB
+from modules.Controller.VisionTestController import FaceTestController
+from modules.APICaller.Vision.KT_FaceDetect import KT_FaceAPI
 
+import psycopg2
+import data.TestVars as TV
 
-kapi = Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh'))
-target_src = "/Users/songdonghun/workspace/dataset/vision/Face Counting Challenge/image_data/10071.jpg"
-faceList = kapi.request(targetFile=target_src)
+from modules.Database.Controller import APIDatabaseController
 
-# init.
-img = Image.open(target_src)
-_width, _height = img.size
-draw = ImageDraw.Draw(img)
+import time
 
-# get rectangle data & draw
-# for x, y, width, height, gender in target.actual:
-for face in faceList:
-    face:Face = face
-    abs_x = _width * face.x
-    abs_y = _height * face.y
-    abs_width = _width * face.width
-    abs_height = _height * face.height
-    print(face)
-    draw.rectangle(xy=[(abs_x, abs_y), (int(abs_x+abs_width), int(abs_y+abs_height))], outline="#00FF00")
-    # print(abs_width, abs_height, abs_x, abs_y)
+### DB init.
+apidb = APIDatabaseController()
+apidb.connect()
 
-# save
-idxOfExt = str(target_src).rindex('.')
-img.save(target_src[:idxOfExt] + "_rec" + target_src[idxOfExt:])
-img.close()
+### TestController init.
+tc = TestControllerWithDB()
+# option = {}
+option = {"limit":2}
 
-print(faceList)
-# 10070
+st = time.time()
+### Request API & DB
+# testResultList = tc.testWith(data=TV.DATA.ClovaAI, api=TV.API.Kakao_STT, purpose=TV.PURPOSE.STT, option=option)   # ClovaAI - Kakao_STT
+# testResultList = tc.testWith(data=TV.DATA.ClovaAI, api=TV.API.KT_STT, purpose=TV.PURPOSE.STT, option=option)      # ClovaAI - KT_STT
+testResultList = tc.testWith(data=TV.DATA.AIHub, api=TV.API.Kakao_STT, purpose=TV.PURPOSE.STT, option=option)        # AIHub - Kakao_STT
+# testResultList = tc.testWith(data=TV.DATA.AIHub, api=TV.API.KT_STT, purpose=TV.PURPOSE.STT, option=option)        # AIHub - KT_STT
 
-
+### Statics
 
 
 
-####### save selected_file
-# answerFile = open('/Users/songdonghun/workspace/dataset/vision/Face Counting Challenge/train.csv', 'r')
-# csvData = csv.reader(answerFile)
+et = time.time()
 
-# next(csvData)  # pass header
+print(et - st)
 
-# # get data
-# for name, num in csvData:
-#     id = name
-#     target_img = f'/Users/songdonghun/workspace/dataset/vision/Face Counting Challenge/image_data/{name}'
-#     copy_path = f'/Users/songdonghun/workspace/dataset/vision/Face Counting Challenge/train_data/{name}'
+# for td in testResultList:
+#     td:TestData = td
+#     print(td)
 
-#     copyfile(target_img, copy_path)
+# 2) 테스트 요청 (data_name, api_name, [개수], [옵션])
+# 3) 테스트 결과 확인
 
-# answerFile.close()
+
+
+
+# apidb.addDataset(source="/usr/src/mysrc", origin="AIHub", data_type="image", data_format="jpeg")
+# testset_number = apidb.addTestset(source="/usr/src/mysrc", service_type="KT_STT", expected="first testset")
+# apidb.addResult(source="/usr/src/mysrc", service_type="KT_STT", number=testset_number, actual="first result")

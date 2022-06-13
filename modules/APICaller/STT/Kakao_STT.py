@@ -7,7 +7,7 @@ import modules.SoundConverter as SoundConverter
 
 
 class Kakao_STT(APICaller):
-    def __init__(self, url=None, key=None, targetFile=None, options=None):
+    def __init__(self, url, key, targetFile=None, options=None):
         super().__init__(url, key, targetFile, options)
 
     def _getJsonDataFromIndex(self, target:str, startIndex:int):

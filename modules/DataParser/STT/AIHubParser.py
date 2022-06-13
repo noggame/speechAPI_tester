@@ -6,7 +6,7 @@ from data.TestData import TestData
 from modules.DataParser.AIDataParser import AIDataParser
 
 class AIHubParser(AIDataParser):
-    def __init__(self, targetPath) -> None:
+    def __init__(self, targetPath:str=None) -> None:
         super().__init__(targetPath)
 
 
@@ -39,7 +39,7 @@ class AIHubParser(AIDataParser):
 
                         # test data
                         td = TestData(id=id, expectedList=expList, sampleFilePath=soundFile)
-                        print(td)
+                        logging.info(td)
                         _testDataList.append(td)
 
                         # inc.
@@ -49,43 +49,6 @@ class AIHubParser(AIDataParser):
             logging.error('[ERR] AIHubParser - ExpectedTargetDirectory not found. check the target path')
 
         return _testDataList
-
-
-    ### deprecated
-    # def getTestDataList(self, targetPath: str = None, limit: int = 0):
-    #     _targetPath = self.targetPath if not targetPath else targetPath
-    #     _testDataList = []
-    #     _numOftd = 0
-
-    #     try:
-    #         for root, dirs, files in os.walk(_targetPath):
-    #             if limit > 0 and _numOftd >= limit:  # limit number of test dataset
-    #                 break
-
-    #             expInfoPath = f'{root}/0001.txt'
-    #             soundFilePath = f'{root}/0001.wav'
-
-    #             if not pathlib.Path(expInfoPath).exists():  # except directory
-    #                 continue
-
-    #             # id
-    #             id = root.split('/')
-    #             id = id[len(id)-1]
-
-    #             # expectedList
-    #             expList = self.extractExpectedSentence(expectedInfoFile = expInfoPath)
-
-    #             # test data
-    #             td = TestData(id = id, expectedList=expList, sampleFilePath=soundFilePath)
-    #             _testDataList.append(td)
-
-    #             # inc.
-    #             _numOftd += 1
-
-    #     except FileNotFoundError:
-    #         logging.error('[ERR] AIHubParser - ExpectedTargetDirectory not found. check the target path')
-
-    #     return _testDataList
 
 
     def extractExpectedSentence(self, expectedInfoFile):
