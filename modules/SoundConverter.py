@@ -1,4 +1,3 @@
-from pydub import AudioSegment
 import os
 import logging
 import time
@@ -7,6 +6,7 @@ import pathlib
 import numpy
 import librosa
 import soundfile
+from pydub import AudioSegment
 
 def convertWAVtoMP3(srcFile):
 

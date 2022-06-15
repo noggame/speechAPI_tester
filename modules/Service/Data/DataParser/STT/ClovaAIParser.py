@@ -1,10 +1,10 @@
 import logging
 import json
-from data.TestData import TestData
-from modules.DataParser.AIDataParser import AIDataParser
+from Struct.TestData import TestData
+from modules.Service.Data.BaseDataParser import BaseDataParser
 
 
-class ClovaAIParser(AIDataParser):
+class ClovaAIParser(BaseDataParser):
 
     def __init__(self, targetPath:str=None) -> None:
         super().__init__(targetPath)

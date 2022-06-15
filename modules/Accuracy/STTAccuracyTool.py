@@ -96,7 +96,7 @@ def calculateWERAccuracyWithNomalize(expectedList:list, actualList:list) -> list
                 hm_expected = exp
                 hm_actual = act
 
-    return [hm_expected, hm_actual, final_wer]
+    return [final_wer, hm_expected, hm_actual]
 
 
 def levenshteinDistanceList(cmp1, cmp2):

@@ -2,9 +2,9 @@ import re
 import os
 
 from data.TestData import TestData
-from modules.DataParser.AIDataParser import AIDataParser
+from modules.DataParser.DataParser import DataParser
 
-class ShinhanDataParser(AIDataParser):
+class ShinhanDataParser(DataParser):
     def __init__(self, targetPath) -> None:
         super().__init__(targetPath)
 

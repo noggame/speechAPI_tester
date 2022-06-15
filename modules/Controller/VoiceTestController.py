@@ -7,7 +7,7 @@ from datetime import datetime
 
 from data.TestData import TestData
 from data.Result import TestResult
-from data.ResultRepository import STTResultRepository
+from Struct.Result.BaseResultRepository import STTResultRepository
 from modules.Accuracy.AccuracyFilter import AccuracyFilter
 from modules.Controller.TestController import TestController
 # API Caller
@@ -15,7 +15,7 @@ from modules.APICaller.APICaller import APICaller
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
 # DataParser
-from modules.DataParser.AIDataParser import AIDataParser
+from modules.DataParser.DataParser import DataParser
 from modules.DataParser.STT.AIHubParser import AIHubParser
 from modules.DataParser.STT.ClovaAIParser import ClovaAIParser
 
@@ -68,7 +68,7 @@ class STTTestController(TestController):
 
         # for each DATA
         for eachDP in self._dataList:
-            dp:AIDataParser = eachDP
+            dp:DataParser = eachDP
 
             for item in dp.getTestDataList(limit=limit):     # TOTAL_SIZE
                 td:TestData = item

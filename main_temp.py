@@ -1,67 +1,38 @@
-# -*- coding: utf-8 -*-
-
-from itertools import zip_longest
-from operator import itemgetter
-import os
-import json
-import re
-from tkinter import EXCEPTION
-
-import config.cfgParser as cfg
-import requests
-from datetime import datetime
-from data.TestData import TestData
-from data.Vision.FaceInfo import Face
-from modules.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceAPI
-from PIL import Image, ImageDraw
-import csv
-from data.Vision.Image import RectangleBox
-import modules.Accuracy.STTAccuracyTool as sta
-from modules.Controller.TestController import TestController, TestControllerWithDB
-from modules.Controller.VisionTestController import FaceTestController
-from modules.APICaller.Vision.KT_FaceDetect import KT_FaceAPI
-
-import psycopg2
-import data.TestVars as TV
-
-from modules.Database.Controller import APIDatabaseController
-
 import time
-
-### DB init.
-apidb = APIDatabaseController()
-apidb.connect()
-
-### TestController init.
-tc = TestControllerWithDB()
-# option = {}
-option = {"limit":2}
+from modules.Controller.TestController import TestController
+from modules.Service.AnalysisManager import AnalyzerManager
+from modules.Service.DataManager import DataManager, REG_DATA
+from modules.Service.APIManager import ServiceManager, REG_SERVICE
+from modules.Service.Type import SUPPORT
 
 st = time.time()
+
+
+### TestController init.
+tc = TestController()
+
+
+# TODO: static class 또는 singleton 으로 변경
+M_Service = ServiceManager()
+M_Data = DataManager()
+M_Analyzer = AnalyzerManager()
+
+print("초기화 = {}".format(time.time() - st))
+st = time.time()
+
+
 ### Request API & DB
-# testResultList = tc.testWith(data=TV.DATA.ClovaAI, api=TV.API.Kakao_STT, purpose=TV.PURPOSE.STT, option=option)   # ClovaAI - Kakao_STT
-# testResultList = tc.testWith(data=TV.DATA.ClovaAI, api=TV.API.KT_STT, purpose=TV.PURPOSE.STT, option=option)      # ClovaAI - KT_STT
-testResultList = tc.testWith(data=TV.DATA.AIHub, api=TV.API.Kakao_STT, purpose=TV.PURPOSE.STT, option=option)        # AIHub - Kakao_STT
-# testResultList = tc.testWith(data=TV.DATA.AIHub, api=TV.API.KT_STT, purpose=TV.PURPOSE.STT, option=option)        # AIHub - KT_STT
+target = REG_DATA.AIHub
+service = REG_SERVICE.KT
+testResultList = tc.testWith(
+    data=M_Data.findData(data_name=target.name, provider_name=target.value),            #     data=DM.findData(data_name="AIHub", provider_name="ETRI"),
+    service_provider=M_Service.findServiceProvider(service_provider_name=service.name),    #     service_provider=SM.findServiceProvider(service_provider_name="KT"),
+    analyzerInfo=M_Analyzer.findAnalyzer(support=SUPPORT.STT),
+    support=SUPPORT.STT, #support=SUPPORT.STT,
+    option={"limit":2})
 
-### Statics
+if testResultList:
+    print("샘플수 = {}, 평균_정확도 = {}".format(testResultList[0], round(testResultList[1],2)))
+    
+# print("종료 = {}".format(time.time() - st))
 
-
-
-et = time.time()
-
-print(et - st)
-
-# for td in testResultList:
-#     td:TestData = td
-#     print(td)
-
-# 2) 테스트 요청 (data_name, api_name, [개수], [옵션])
-# 3) 테스트 결과 확인
-
-
-
-
-# apidb.addDataset(source="/usr/src/mysrc", origin="AIHub", data_type="image", data_format="jpeg")
-# testset_number = apidb.addTestset(source="/usr/src/mysrc", service_type="KT_STT", expected="first testset")
-# apidb.addResult(source="/usr/src/mysrc", service_type="KT_STT", number=testset_number, actual="first result")

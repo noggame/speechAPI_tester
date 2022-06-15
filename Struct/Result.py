@@ -1,5 +1,3 @@
-from typing import List
-
 
 class TestResult:
     def __init__(self, id, service, source, expected:list, actual:list) -> None:
@@ -25,7 +23,6 @@ class TestResult:
         #       "피곤할 짜리 있나요"
         #    ]
         # }
-
 
         result_json = '{'                                   # open json
         result_json += f'"id": "{self.id}"'
@@ -98,16 +95,16 @@ class TestResult:
         self._actual = actual
 
 
-class ResultFlag:
+# class ResultFlag:
 
-    SKIP = False
-    KT = False
-    KAKAO = False
+#     SKIP = False
+#     KT = False
+#     KAKAO = False
 
-    def __init__(self) -> None:
-        pass
+#     def __init__(self) -> None:
+#         pass
 
-    def init(self):
-        self.SKIP = False
-        self.KT = False
-        self.KAKAO = False
+#     def init(self):
+#         self.SKIP = False
+#         self.KT = False
+#         self.KAKAO = False

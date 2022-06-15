@@ -1,9 +1,9 @@
 import csv
 from data.TestData import TestData
 from data.Vision.FaceInfo import Face
-from modules.DataParser.AIDataParser import AIDataParser
+from modules.DataParser.DataParser import DataParser
 
-class FaceCountingParser(AIDataParser):
+class FaceCountingParser(DataParser):
     def __init__(self, targetFile=None) -> None:
         super().__init__(targetFile)
 

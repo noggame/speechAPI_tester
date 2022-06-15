@@ -1,106 +1,13 @@
-# from audioop import minmax
-# from inspect import iscoroutine
-from datetime import datetime
-from itertools import zip_longest
-import json
-import os
-# from re import L, X
-from data.Vision.FaceInfo import Face
-from data.Vision.Image import RectangleBox
-from Struct.Result.BaseResultRepository import FaceResultRepository
-from modules.APICaller.Vision.KT_FaceDetect import KT_FaceAPI
-from modules.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceAPI
-from modules.DataParser.DataParser import DataParser
-from modules.APICaller.APICaller import APICaller
-from data.TestData import TestData
-from data.Result import TestResult
-from modules.Controller.TestController import TestController
-import logging
-from PIL import Image, ImageDraw
-import config.cfgParser as cfg
-from modules.DataParser.Vision.FaceDetectParser import FaceCountingParser
+from modules.Service.Analyzer.BaseResultAnalyzer import BaseResultAnalyzer
 
-class FaceTestController(TestController):
+class FDResultAnalyzer(BaseResultAnalyzer):
     def __init__(self) -> None:
         super().__init__()
+        self.resultStack = {
 
+        }
 
-    def startTestAndAnalysis(self, data_name, api_name, number=0):
-        """
-        API Test and Analysis method
-        """
-        ### create ID with time
-        now = datetime.now()
-        current_time = now.strftime("%Y%m%d_%H%M%S_")
-        time_stamp = str(current_time)+str(now.microsecond)
-
-        ### Environment
-        filePath = {}
-        filePath['log'] = "{}/log_{}.log".format(cfg.get("system","log_dir"), time_stamp)
-        filePath['result'] = "{}/result_faceDetection_{}.log".format(cfg.get("system","result_dir"), time_stamp)
-        # filePath['analysis'] = f'{os.getcwd()}/logs/analysis_faceDetection_{time_stamp}.log'  # TODO: 결과 로그파일 저장
-        filePath['resultImgaeDir'] = cfg.get("system","output_dir")
-        # f'{os.getcwd()}/sample/vision/face_counting_challenge/temp_resultImage'
-        logging.basicConfig(filename=filePath['log'], level=logging.DEBUG, format='%(asctime)s %(message)s') # set Log
-        target_data = self.__setTestData(data_name)     # set Data (target)
-        target_api = self.__setAPICaller(api_name)      # set API
-        if target_data == None or target_api == None:
-            return None
-
-
-        ### STT API 호출 및 결과 저장
-        sttResultList = self.startRequest(limit=number, record=filePath['result'])    # number개의 샘플 테스트
-
-
-        ### 테스트 결과 파일 불러와 결과 반환
-        analysisResultList = self.startAnalysis(targetFile = filePath['result'], record = filePath['resultImgaeDir'])
-
-
-        return analysisResultList
-
-
-    def startRequest(self, limit:int=0, record:str=None):
-        _testResultList = []
-        file_record = open(record, 'w') if record else None
-
-        # get target_data/path
-        for eachDataParser in self._dataList:
-            dataParser:DataParser = eachDataParser
-
-            # get samples from target_data/path
-            cnt=1
-            # for sample in dataParser.getTestDataList(limit=limit):
-            for sample in dataParser.getTestDataList(limit=limit):
-                td:TestData = sample
-                print("[{}] {}".format(cnt, td.sampleFilePath))
-                cnt+=1
-
-                # request API
-                for eachAPI in self._apiList:
-                    api:APICaller = eachAPI
-
-                    actualResult:list = api.request(targetFile=td.sampleFilePath)   # = faceList
-                    testResult:TestResult = TestResult(id=td.id,
-                                                        service=api.__class__.__name__,
-                                                        source=td.sampleFilePath,
-                                                        expected=td.expectedList,
-                                                        actual=actualResult)
-                    _testResultList.append(testResult)
-
-                    # recording
-                    if file_record:
-                        file_record.write(str(testResult))
-                        file_record.write("\n")
-                    logging.info(str(testResult))
-
-                    print("{} >> expected = {}, actual = {}".format(api.__class__.__name__, len(td.expectedList), len(actualResult)))
-        
-        file_record.close()
-
-        return _testResultList
-
-
-    def startAnalysis(self, accuracyFilter:list=None, categoryFilter:list=None, resultList:list=None, targetFile:str=None, record:str=None):
+    def analysisResultStack(self, resultList:list):
         _resultList = []
         _analysisRepo = FaceResultRepository()
         th_detection = float(cfg.get('vision', 'threshold_face_detection'))
@@ -163,6 +70,35 @@ class FaceTestController(TestController):
         return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) # TODO: Vision - FaceDetection 분석 결과 저장
 
 
+    def addAnalysisData(self, testResult:TestResult, bestResult:list):
+        """ TestResult를 입력받아 분석하고, 분석 결과를 Analysis Reopistory에 저장 """
+        # self._analysisResultDict = {}
+        
+        
+        staticInfoList = []
+            
+        # collect static information
+        numOfMatching = len([idx_act for [idx_act, score] in bestResult if idx_act != None])
+        staticInfoList.append({
+            "service": testResult.service,
+            "expected": len(testResult.expected),
+            "actual": len(testResult.actual),
+            "matching": numOfMatching,
+            "accuracy": numOfMatching/len(testResult.expected)
+        })
+
+        # store static data
+        if testResult.id not in self._analysisResultDict:
+            eachId = self._analysisResultDict[testResult.id] = {}   # set id
+            eachId['source'] = testResult.source                    # set source
+            eachId['statics'] = []                                  # init. static
+        
+        statics:list = self._analysisResultDict[testResult.id]['statics']
+        statics.extend(staticInfoList)
+
+
+
+
     def getStaticInfo(self, accuracyFilter:list=None, categoryFilter:list=None, analysisData:dict=None, targetFile:str=None, record:str=None):
         staticRepo = {"sample": 0}
         # staticRepo = {
@@ -214,6 +150,20 @@ class FaceTestController(TestController):
         return result
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Image Processing
     def _saveAnalizedImage(self, source:str, dest:str, expectedList, actualList, analysisResult):
         ### init.
         img = Image.open(source)
