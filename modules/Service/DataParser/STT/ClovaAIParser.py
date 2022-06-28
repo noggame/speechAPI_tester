@@ -1,7 +1,7 @@
 import logging
 import json
 from Struct.TestData import TestData
-from modules.Service.Data.BaseDataParser import BaseDataParser
+from modules.Service.DataParser.BaseDataParser import BaseDataParser
 
 
 class ClovaAIParser(BaseDataParser):

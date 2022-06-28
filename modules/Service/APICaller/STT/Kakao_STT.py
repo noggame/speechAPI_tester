@@ -1,5 +1,5 @@
 from typing import List
-from modules.Service.API.BaseAPICaller import BaseAPICaller
+from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
 import requests
 import json
 import logging

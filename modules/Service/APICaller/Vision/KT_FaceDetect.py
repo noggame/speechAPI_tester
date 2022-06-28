@@ -1,12 +1,10 @@
 import json
 import requests
 from PIL import Image
-from data.Vision.FaceInfo import Face
+from Struct.Vision.FaceInfo import Face
+from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
 
-from modules.APICaller.APICaller import APICaller
-
-
-class KT_FaceAPI(APICaller):
+class KT_FaceDatect(BaseAPICaller):
     def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
         super().__init__(url, key, targetFile, options)
     
@@ -16,9 +14,7 @@ class KT_FaceAPI(APICaller):
         _targetFile = targetFile if targetFile else self.targetFile
         _options = options if options else self._options
 
-        _threshold = _options['threshold']
-
-        header = {'Threshold': str(_threshold)}
+        header = _options if _options else {}
         files = {'imgFile':open(_targetFile, 'rb')}
 
         faceList = []
@@ -57,7 +53,7 @@ class KT_FaceAPI(APICaller):
                 # sorting with coordinate.x
                 faceList.sort(key=lambda f: f.x)
             else:
-                print("[Error] bad response. >> {}".format(response.status_code))
+                print("[Error] bad response. >> {}".format(response))
                 return faceList
 
         except Exception as e:

@@ -1,106 +1,34 @@
-from modules.Service.Analyzer.BaseResultAnalyzer import BaseResultAnalyzer
+from itertools import zip_longest
+import json
+from Struct.Result import TestResult
+from modules.Service.ResultAnalyzer.BaseResultAnalyzer import BaseResultAnalyzer
+import logging
+import config.cfgParser as cfg
+from Struct.Vision.Image import RectangleBox
+from Struct.Vision.FaceInfo import Face
+from PIL import Image, ImageDraw
+
 
 class FDResultAnalyzer(BaseResultAnalyzer):
     def __init__(self) -> None:
         super().__init__()
         self.resultStack = {
-
+            'statistics' : {
+                'numOfSamples' : 0,
+                'accuracy_sum' : 0
+            },
+            'samples' : {}
         }
-
-    def analysisResultStack(self, resultList:list):
-        _resultList = []
-        _analysisRepo = FaceResultRepository()
-        th_detection = float(cfg.get('vision', 'threshold_face_detection'))
-
-
-        ### get resultList
-        if resultList:
-            _resultList = resultList
-        elif targetFile:    # get resultList from file
-            resultFile = open(targetFile, 'r')
-
-            for result in resultFile.readlines():
-                result = json.loads(result)
-                _resultList.append(TestResult(result['id'], result['service'], result['source'], result['expected'], result['actual']))
-
-            resultFile.close()
-        else:
-            logging.exception(f'[Exception] {__class__.__name__}:{__name__} - result data is empty')
-            print("not found result data")
+        ### samples
+        # {
+        #     'service': result.service,
+        #     'expected': acc_expected,
+        #     'actual': acc_actual,
+        #     'metric': 'Jaccard Acc. with Rect. object',
+        #     'accuracy': float(acc)
+        # }
 
 
-        ### Anaysis result
-        for result in _resultList:  # for each picture
-            result:TestResult = result
-            actualList = result.actual
-            expectedList = result.expected
-            jaccardScoreList = []
-
-            for idx_act in range(len(actualList)): # for each actual
-                eachActualJaccardScore = []
-
-                for exp in expectedList:    # for each expected
-                    # 실제값 기준 각 기대값 박스와 매칭해보면서 자카드 유사도 계산 > 계산 결과 중 가장 유사도가 높은 배열 한 곳에 [idx, similarity] 값 저장
-                    act:dict = actualList[idx_act]
-                    exp:dict = exp
-                    rect_act = RectangleBox(act.get('x'), act.get('y'), act.get('width'), act.get('height'))
-                    rect_exp = RectangleBox(exp.get('x'), exp.get('y'), exp.get('width'), exp.get('height'))
-                    jaccardScore = self._getJaccardSimirality(rect_act, rect_exp)
-
-                    eachActualJaccardScore.append(jaccardScore)
-
-                jaccardScoreList.append(eachActualJaccardScore)
-
-            bestResult = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_matching'))     # [[idx_actual, score]] * len(expectedList)
-            _analysisRepo.addAnalysisData(testResult=result, bestResult=bestResult)
-            logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
-            # print(result.source, bestResult)
-
-            ### make image
-            if record:
-                fileName = str(result.source).split('/')
-                fileName = fileName[len(fileName)-1]
-                idx_Ext = str(fileName).rindex('.')
-                saveFilePath = "{}/{}_{}{}".format(record, fileName[:idx_Ext], result.service, fileName[idx_Ext:])
-                self._saveAnalizedImage(source=result.source, dest=saveFilePath, expectedList=expectedList, actualList=actualList, analysisResult=bestResult)
-                logging.info("save image : {}".format(saveFilePath))
-
-
-        ### 기대/인식 사람 얼굴 수 비교한 결과값 저장(record param.) 및 반환
-        return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) # TODO: Vision - FaceDetection 분석 결과 저장
-
-
-    def addAnalysisData(self, testResult:TestResult, bestResult:list):
-        """ TestResult를 입력받아 분석하고, 분석 결과를 Analysis Reopistory에 저장 """
-        # self._analysisResultDict = {}
-        
-        
-        staticInfoList = []
-            
-        # collect static information
-        numOfMatching = len([idx_act for [idx_act, score] in bestResult if idx_act != None])
-        staticInfoList.append({
-            "service": testResult.service,
-            "expected": len(testResult.expected),
-            "actual": len(testResult.actual),
-            "matching": numOfMatching,
-            "accuracy": numOfMatching/len(testResult.expected)
-        })
-
-        # store static data
-        if testResult.id not in self._analysisResultDict:
-            eachId = self._analysisResultDict[testResult.id] = {}   # set id
-            eachId['source'] = testResult.source                    # set source
-            eachId['statics'] = []                                  # init. static
-        
-        statics:list = self._analysisResultDict[testResult.id]['statics']
-        statics.extend(staticInfoList)
-
-
-
-
-    def getStaticInfo(self, accuracyFilter:list=None, categoryFilter:list=None, analysisData:dict=None, targetFile:str=None, record:str=None):
-        staticRepo = {"sample": 0}
         # staticRepo = {
         #    "sample":35000,
         #    "KT_FaceDetect":{
@@ -117,45 +45,101 @@ class FDResultAnalyzer(BaseResultAnalyzer):
         # }
 
 
-        ### analysis data
-        for id in analysisData:
-            staticRepo['sample'] += 1
+    def analysisResultStack(self, resultList:list):
+        """결과정보(resultList)를 분석해 (샘플수, 평균정확도) 결과 반환
+        """
+        for result in resultList:
+            self._addResultToStack(result=result)
 
-            for static in analysisData[id]['statics']:
-                service = static['service']
+        samples = self.resultStack['statistics']['numOfSamples']
+        accuracy_avg = round(float(self.resultStack['statistics']['accuracy_sum']/samples)*100, 2)
 
-                if service not in staticRepo:
-                    staticRepo[service] = {'expected':0, 'actual':0, 'matching':0}
-                
-                staticRepo[service]['expected'] += static['expected']
-                staticRepo[service]['actual'] += static['actual']
-                staticRepo[service]['matching'] += static['matching']
+        return samples, accuracy_avg
+
+    
+    def _addResultToStack(self, result:TestResult):
+        th_detection = float(cfg.get('vision', 'threshold_face_detection'))
+
+        actualList = result.actual
+        expectedList = result.expected
+        jaccardScoreList = []
+
+        for idx_act in range(len(actualList)): # for each actual
+            eachActualJaccardScore = []
+
+            for exp in expectedList:    # for each expected
+                # 실제값 기준 각 기대값 박스와 매칭해보면서 자카드 유사도 계산 > 계산 결과 중 가장 유사도가 높은 배열 한 곳에 [idx, similarity] 값 저장
+                act:dict = json.loads(actualList[idx_act])
+                exp:dict = json.loads(exp)
+                rect_act = RectangleBox(act.get('x'), act.get('y'), act.get('width'), act.get('height'))
+                rect_exp = RectangleBox(exp.get('x'), exp.get('y'), exp.get('width'), exp.get('height'))
+                jaccardScore = self._getJaccardSimirality(rect_act, rect_exp)
+
+                eachActualJaccardScore.append(jaccardScore)
+
+            jaccardScoreList.append(eachActualJaccardScore)
+
+        bestResult:list = self._getBestJaccardScore(jaccardScoreList, cfg.get('vision', 'threshold_face_matching'))     # [[idx_actual, score]] * len(expectedList)
+
+        accuracy = len([matching_rate for idx_act, matching_rate in bestResult if matching_rate > 0.5]) / len(expectedList)
+        samples = self.resultStack['samples']
+        samples[result.id] = {
+            "service": result.service,
+            "expected": expectedList,
+            "actual": actualList,
+            "metric": "Face Counting",
+            "accuracy": float(accuracy)
+        }
+
+        statistics = self.resultStack['statistics']
+        statistics['numOfSamples'] += 1
+        statistics['accuracy_sum'] += float(accuracy)
 
 
-        ### Result formating
-        result = "---------------------------\n"
-        result += "Result of Face Detection"
-        for static in staticRepo:
-            if static == 'sample':
-                result += f" (sample : {staticRepo[static]})\n"
-                result += "---------------------------\n"
-                continue
+        # _analysisRepo.addAnalysisData(testResult=result, bestResult=bestResult)
+        logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
+        # print(result.source, bestResult)
 
-            exp = staticRepo[static]['expected']
-            act = staticRepo[static]['actual']
-            mat = staticRepo[static]['matching']
-            acc = round(mat/exp*100, 2)
-            result += "{} : ACC = {} % (exp:{}, act:{}, mat:{})\n".format(static, str(acc).ljust(5), exp, act, mat)
-
-        return result
+        ### make image
+        # if record:
+        #     fileName = str(result.source).split('/')
+        #     fileName = fileName[len(fileName)-1]
+        #     idx_Ext = str(fileName).rindex('.')
+        #     saveFilePath = "{}/{}_{}{}".format(record, fileName[:idx_Ext], result.service, fileName[idx_Ext:])
+        #     self._saveAnalizedImage(source=result.source, dest=saveFilePath, expectedList=expectedList, actualList=actualList, analysisResult=bestResult)
+        #     logging.info("save image : {}".format(saveFilePath))
 
 
+        ### 기대/인식 사람 얼굴 수 비교한 결과값 저장(record param.) 및 반환
+        # return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) # TODO: Vision - FaceDetection 분석 결과 저장
 
 
 
+    # def addAnalysisData(self, testResult:TestResult, bestResult:list):
+    #     """ TestResult를 입력받아 분석하고, 분석 결과를 Analysis Reopistory에 저장 """
+    #     # self._analysisResultDict = {}
+        
+        
+    #     staticInfoList = []
+            
+    #     # collect static information
+    #     numOfMatching = len([idx_act for [idx_act, score] in bestResult if idx_act != None])
+    #     staticInfoList.append({
+    #         "service": testResult.service,
+    #         "expected": len(testResult.expected),
+    #         "actual": len(testResult.actual),
+    #         "matching": numOfMatching,
+    #         "accuracy": numOfMatching/len(testResult.expected)
+    #     })
 
-
-
+    #     # store static data
+    #     if testResult.id not in self._analysisResultDict:
+    #         eachId = self._analysisResultDict[testResult.id] = {}   # set id
+    #         eachId['source'] = testResult.source                    # set source
+    #         eachId['statics'] = []                                  # init. static
+        
+    #     statics:list = self._analysisResultDict[testResult.id]['statics']
+    #     statics.extend(staticInfoList)
 
 
 
@@ -336,31 +320,3 @@ class FDResultAnalyzer(BaseResultAnalyzer):
                             # TODO : bestJaccardScore[expIdxMatchingWith[idx_act]] 의 값을 새로 쓰면서, expIdxMatchingWith[idx_act] 번째 기대값 항목에 대한 매칭을 새롭게 계산
 
         return bestJaccardScore
-
-
-    def __setTestData(self, data_name):
-        target_data = None
-
-        if data_name == 'FaceCounting':
-            target_data = FaceCountingParser(targetFile=f"{os.getcwd()}/sample/vision/face_counting_challenge")   # FaceCounting
-            # target_data = ClovaAIParser(f'{os.getcwd()}/sample/voice/stt/ClovaCall')   # ClovaAI
-
-        if target_data:
-            self.addTestData(target_data)
-        
-        return target_data
-
-
-    def __setAPICaller(self, api_name):
-        target_api = None
-
-        if api_name == 'KT':
-            target_api = KT_FaceAPI(url=cfg.get('kt', 'url_face'), options={"threshold":0.5})
-
-        elif api_name == 'Kakao':
-            target_api = Kakao_FaceAPI(url=cfg.get('kakao', 'url_face'), key=cfg.get('kakao', 'key_sdh'))
-
-        if target_api:
-            self.addAPICaller(target_api)
-
-        return target_api

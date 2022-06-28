@@ -1,9 +1,9 @@
 import requests
 import json
-from data.Vision.FaceInfo import Face
-from modules.APICaller.APICaller import APICaller
+from Struct.Vision.FaceInfo import Face
+from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
 
-class Kakao_FaceAPI(APICaller):
+class Kakao_FaceDetect(BaseAPICaller):
 
     def __init__(self, url=None, key=None, targetFile=None, options=None):
         super().__init__(url, key, targetFile, options)
@@ -13,7 +13,7 @@ class Kakao_FaceAPI(APICaller):
         _url = url if url else self.url
         _key = key if key else self.key
         _targetFile = targetFile if targetFile else self.targetFile
-        # _options = options if options else self._options
+        _options = options if options else self._options
 
 
         header = {'Authorization': _key}
@@ -51,6 +51,9 @@ class Kakao_FaceAPI(APICaller):
                 # sorting with coordinate.x
                 faceList.sort(key=lambda m: m.x)
 
+                return faceList
+            else:
+                print("[Error] bad response. >> {}".format(response))
                 return faceList
         except:
             print("[Error] fail to request.")

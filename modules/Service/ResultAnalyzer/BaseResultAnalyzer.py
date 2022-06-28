@@ -1,10 +1,8 @@
 
-from abc import abstractclassmethod, abstractmethod
-
+from abc import ABC, abstractmethod
 from Struct.Result import TestResult
 
-
-class BaseResultAnalyzer():
+class BaseResultAnalyzer(ABC):
     def __init__(self) -> None:
         self.resultStack = {}
 

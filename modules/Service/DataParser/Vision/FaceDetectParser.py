@@ -1,9 +1,9 @@
 import csv
-from data.TestData import TestData
-from data.Vision.FaceInfo import Face
-from modules.DataParser.DataParser import DataParser
+from Struct.TestData import TestData
+from Struct.Vision.FaceInfo import Face
+from modules.Service.DataParser.BaseDataParser import BaseDataParser
 
-class FaceCountingParser(DataParser):
+class FaceCountingParser(BaseDataParser):
     def __init__(self, targetFile=None) -> None:
         super().__init__(targetFile)
 
@@ -11,6 +11,7 @@ class FaceCountingParser(DataParser):
         _targetPath = self.targetPath if not targetPath else targetPath
         _testDataList = []
         _numOftd = 1
+        _img_dir = "image_data"
 
 
         ### face box
@@ -30,7 +31,7 @@ class FaceCountingParser(DataParser):
                     _numOftd += 1
 
                 faceList.sort(key=lambda m: m.x)
-                td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/image_data/{prev_name}')
+                td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/{_img_dir}/{prev_name}')
                 _testDataList.append(td)
                 # init.
                 faceList = []
@@ -40,7 +41,7 @@ class FaceCountingParser(DataParser):
 
         # end of line
         faceList.sort(key=lambda m: m.x)
-        td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/image_data/{prev_name}')
+        td = TestData(id=prev_name, expectedList=faceList, sampleFilePath=f'{_targetPath}/{_img_dir}/{prev_name}')
         _testDataList.append(td)
 
         boxFile.close()

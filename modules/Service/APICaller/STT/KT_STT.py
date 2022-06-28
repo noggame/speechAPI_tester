@@ -1,7 +1,7 @@
 from sre_compile import isstring
 # from urllib import response
-from modules.Service.API.BaseAPICaller import BaseAPICaller
-from modules.Service.API.APICaller.STT.ktAiApiSDK.stt import STT as KT_STT_SDK
+from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
+from modules.Service.APICaller.STT.ktAiApiSDK.stt import STT as KT_STT_SDK
 import modules.SoundConverter as sc
 import logging
 import time
