@@ -214,6 +214,27 @@ class FaceTestController(TestController):
         return result
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     def _saveAnalizedImage(self, source:str, dest:str, expectedList, actualList, analysisResult):
         ### init.
         img = Image.open(source)

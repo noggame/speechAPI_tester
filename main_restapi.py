@@ -2,7 +2,7 @@
 import json
 from flask import Flask, request
 from modules.Controller.VisionTestController import FaceTestController
-from modules.Controller.VoiceTestController import STTTestController
+from trash.VoiceTestController import STTTestController
 # from waitress import serve
 
 app = Flask(__name__)

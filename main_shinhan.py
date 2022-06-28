@@ -4,7 +4,7 @@ import config.cfgParser as cfg
 from datetime import datetime
 from modules.APICaller.STT.KT_STT import KT_STT
 from modules.APICaller.STT.Kakao_STT import Kakao_STT
-from modules.Controller.VoiceTestController import STTTestController
+from trash.VoiceTestController import STTTestController
 from modules.DataParser.STT.ShinhanDataParser import ShinhanDataParser
 import modules.Accuracy.STTAccuracyTool as sat
 import json

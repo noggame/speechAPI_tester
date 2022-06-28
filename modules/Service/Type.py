@@ -1,7 +1,8 @@
 from enum import Enum
-class SUPPORT(Enum):
+
+class SERVICE_TYPE(Enum):
     STT = "STT"
-    FACE_DETECTION = "FACE_DETECTION"
+    FD = "FACE_DETECTION"
 
 
 # import modules.Accuracy.STTAccuracyTool as sat

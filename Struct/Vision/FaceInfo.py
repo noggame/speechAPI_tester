@@ -1,4 +1,4 @@
-from data.Vision.Image import RectangleBox
+from Struct.Vision.Image import RectangleBox
 
 class Face(RectangleBox):
     def __init__(self, x, y, width, height, gender) -> None:
