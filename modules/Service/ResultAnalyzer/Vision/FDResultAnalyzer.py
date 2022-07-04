@@ -100,6 +100,8 @@ class FDResultAnalyzer(BaseResultAnalyzer):
         logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
         # print(result.source, bestResult)
 
+
+        # TODO: FDResultAnalyzer : FaceDetection 분석 결과 저장
         ### make image
         # if record:
         #     fileName = str(result.source).split('/')
@@ -111,7 +113,7 @@ class FDResultAnalyzer(BaseResultAnalyzer):
 
 
         ### 기대/인식 사람 얼굴 수 비교한 결과값 저장(record param.) 및 반환
-        # return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) # TODO: Vision - FaceDetection 분석 결과 저장
+        # return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) 
 
 
 
@@ -299,7 +301,7 @@ class FDResultAnalyzer(BaseResultAnalyzer):
                 bestActIdx, bestScore = bestJaccardScore[idx_exp]
                 curScore = jaccardScoreList[idx_act][idx_exp]
 
-                if curScore > bestScore:    # TODO : Threshold 값 보다 높은 경우에 매칭
+                if curScore > bestScore:    # TODO : FDResultAnalyzer : Threshold 값 보다 높은 경우에 매칭
 
                     if expIdxMatchingWith[idx_act] == None:
                         if bestActIdx == None:
@@ -317,6 +319,6 @@ class FDResultAnalyzer(BaseResultAnalyzer):
                             bestJaccardScore[expIdxMatchingWith[idx_act]] = [None, 0]
                             expIdxMatchingWith[idx_act] = idx_exp
                             bestJaccardScore[idx_exp] = [idx_act, curScore]
-                            # TODO : bestJaccardScore[expIdxMatchingWith[idx_act]] 의 값을 새로 쓰면서, expIdxMatchingWith[idx_act] 번째 기대값 항목에 대한 매칭을 새롭게 계산
+                            # TODO : FDResultAnalyzer : bestJaccardScore[expIdxMatchingWith[idx_act]] 의 값을 새로 쓰면서, expIdxMatchingWith[idx_act] 번째 기대값 항목에 대한 매칭을 새롭게 계산
 
         return bestJaccardScore

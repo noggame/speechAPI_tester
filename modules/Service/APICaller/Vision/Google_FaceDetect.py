@@ -1,12 +1,10 @@
 import json
 import requests
 from PIL import Image
-from data.Vision.FaceInfo import Face
+from Struct.Vision.FaceInfo import Face
+from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
 
-from modules.APICaller.APICaller import APICaller
-
-#TODO: Google API - Face Detection 추가
-class Google_FaceAPI(APICaller):
+class Google_FaceDetection(BaseAPICaller):
     def __init__(self, url=None, key=None, targetFile=None, options=None) -> None:
         super().__init__(url, key, targetFile, options)
     

@@ -2,6 +2,7 @@
 from modules.Service.APICaller.STT.KT_STT import KT_STT
 from modules.Service.APICaller.STT.Kakao_STT import Kakao_STT
 from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
+from modules.Service.APICaller.Vision.Google_FaceDetect import Google_FaceDetection
 from modules.Service.APICaller.Vision.KT_FaceDetect import KT_FaceDatect
 from modules.Service.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceDetect
 from modules.Service.DataParser.Vision.FaceDetectParser import FaceCountingParser
@@ -45,8 +46,9 @@ class ServiceFactory():
 
     def getAPICaller(self, service_provider:PROVIDER, service_type:SERVICE_TYPE, service_info:dict) -> BaseAPICaller:
         service_url:str = service_info['url']
-        service_keys:list = service_info['keys']
+        service_keys:list = service_info['keys']    # service_keys[순번][(키명, 키값)]
 
+        ### KT_STT
         if service_provider == self.PROVIDER.KT and service_type == SERVICE_TYPE.STT:
             KT_keys = {}
             for k_name, k_value in service_keys:
@@ -54,17 +56,21 @@ class ServiceFactory():
 
             return KT_STT(url="", key=KT_keys)
 
+        ### Kakao_STT
         elif service_provider == self.PROVIDER.Kakao and service_type == SERVICE_TYPE.STT:
             return Kakao_STT(url = service_url, key = service_keys[0][1])
-            # return Kakao_STT(url = cfg.get('kakao', 'url_stt'), key = cfg.get('kakao', 'key_sdh'))
 
-        # elif service_provider == self.PROVIDER.KT and service_type == SERVICE_TYPE.FD:
-        #     return KT_FaceDatect(url = cfg.get('kt', 'url_face'),
-        #                         options={'Threshold':'0.7', 'filename':'10001.jpg'})
-
+        ### Kakao_FaceDetection
         elif service_provider == self.PROVIDER.Kakao and service_type == SERVICE_TYPE.FD:
             return Kakao_FaceDetect(url = service_url, key = service_keys[0][1])
-            # return Kakao_FaceDetect(url = cfg.get('kakao', 'url_face'), key = cfg.get('kakao', 'key_sdh'))
+
+        ### KT_FaceDetection
+        elif service_provider == self.PROVIDER.KT and service_type == SERVICE_TYPE.FD:
+            return KT_FaceDatect(url = service_url, options={'threshold':'0', 'fileName':'10001.jpg'})
+
+        ### Google_FaceDetection (만료)
+        # elif service_provider == self.PROVIDER.Google and service_type == SERVICE_TYPE.FD:
+        #     return Google_FaceDetection(url = service_url, key = service_keys[0][1])
             
         else:
             logging.warning("[WARNINIG] {} API Caller is not defined or {} is not supperted".format(service_provider.name, service_type.name))

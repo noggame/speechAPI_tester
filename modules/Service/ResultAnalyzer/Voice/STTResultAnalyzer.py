@@ -1,8 +1,5 @@
 from Struct.Result import TestResult
 from modules.Service.ResultAnalyzer.BaseResultAnalyzer import BaseResultAnalyzer
-# from Struct.Result.BaseResultRepository import STTResultRepository
-# from modules.Service.Type import ACCURACY_STT
-import json
 import logging
 
 import re

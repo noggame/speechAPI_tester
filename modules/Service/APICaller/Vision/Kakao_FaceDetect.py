@@ -50,11 +50,8 @@ class Kakao_FaceDetect(BaseAPICaller):
 
                 # sorting with coordinate.x
                 faceList.sort(key=lambda m: m.x)
-
-                return faceList
             else:
                 print("[Error] bad response. >> {}".format(response))
-                return faceList
         except:
             print("[Error] fail to request.")
             return None

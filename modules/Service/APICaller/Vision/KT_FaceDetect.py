@@ -1,5 +1,6 @@
 import json
 import requests
+import logging
 from PIL import Image
 from Struct.Vision.FaceInfo import Face
 from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
@@ -12,15 +13,14 @@ class KT_FaceDatect(BaseAPICaller):
         _url = url if url else self.url
         _key = key if key else self.key
         _targetFile = targetFile if targetFile else self.targetFile
-        _options = options if options else self._options
 
-        header = _options if _options else {}
+        headers = options if options else self.options
         files = {'imgFile':open(_targetFile, 'rb')}
 
         faceList = []
 
         try:
-            response = requests.post(url=_url, headers=header, files=files)
+            response = requests.post(url=_url, headers=headers, files=files)
             im = Image.open(targetFile)
 
             if response.status_code == 200:
@@ -53,10 +53,12 @@ class KT_FaceDatect(BaseAPICaller):
                 # sorting with coordinate.x
                 faceList.sort(key=lambda f: f.x)
             else:
-                print("[Error] bad response. >> {}".format(response))
+                logging.warn("[ERROR] bad response. >> {}".format(response))
+                
                 return faceList
 
         except Exception as e:
+            # logging.warn("[ERROR] bad response. >> {}".format(response))
             print("[Error] fail to request. >> {}".format(e))
             return None
         

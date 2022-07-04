@@ -72,8 +72,7 @@ class TestController:
         ### UPDATE testdata
         # testset의 처음부터 순차로 파일로부터의 기대값/결과값이 DB에서읽은 기대값/결과값의 수와 동일한지 확인, 차이가 있는 경우 기존 DB의 expect/actual 삭제 후 신규 생성 (index 증가에 주의!)
         if option.get('update'):
-            # TODO: option의 limit 개수만큼만 업데이트하도록 추가 구현
-            # TODO: 추후 update는 별도 UI로 분리
+            # TODO: Controller : 추후 update는 별도 UI로 분리
             self._updateTestdata(testdata=testdata, service_type=service_type, limit=data_limit)
             self._updateResultdata(testdata=testdata, service_provider=service_provider, service_type=service_type, limit=data_limit)
             testsetList_from_db = db_ctrl().getTestsetList(title=data_name, purpose=purpose, limit=data_limit)
@@ -116,7 +115,6 @@ class TestController:
                 else:
                     # empty response
                     logging.warn("[WARNING] empty response from api({}), testset({})".format(api_id, testset_id))
-
 
 
             ### Result
