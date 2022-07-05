@@ -3,6 +3,8 @@ import logging
 from modules.DesignPattern.Singleton import MetaSingleton
 import config.cfgParser as cfg
 
+# TODO::DB::Controller index 대신 고유id값 생성해 할당 (테이블명+시간+random_value)
+
 class APIDatabaseController(metaclass=MetaSingleton):
     _connection = None
     _cur = None
@@ -14,10 +16,10 @@ class APIDatabaseController(metaclass=MetaSingleton):
         try:
             self._connection = psycopg2.connect(
                 host="0.0.0.0",
-                port="5432",
-                dbname="apidata",
-                user="admin",
-                password=cfg.get("db", "password")
+                port=cfg.get("postgresql", "port"),
+                dbname=cfg.get("postgresql", "dbname"),
+                user=cfg.get("postgresql", "user"),
+                password=cfg.get("postgresql", "password")
             )
             self._cur = self._connection.cursor()
 
@@ -26,6 +28,24 @@ class APIDatabaseController(metaclass=MetaSingleton):
 
 
     ################################################## datainfo
+    def getDatainfo(self, title:str, purpose:str):
+        """
+        """
+        try:
+            self._cur.execute(f"SELECT base_dir \
+                                FROM datainfo \
+                                WHERE title='{title}' AND purpose='{purpose}'")
+
+            result = []
+            for data in self._cur.fetchall():
+                result.append(data[0])
+
+            return result
+
+        except psycopg2.Error as e:
+            logging.error("[ERROR] Selection error occured :: getDatainfo- {}".format(e))
+
+        return None
 
     def addDatainfo(self, title:str, origin:str, base_dir:str, purpose:str, data_type:str=None):
         """테스트 데이터 정보 저장
