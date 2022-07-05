@@ -50,9 +50,6 @@ class TestController:
 
         ### INIT. testdata objects
         try:
-            # data_parser:BaseDataParser = df().getDataParser(testdata=testdata, service_type=service_type)
-            # testsetList_from_file = data_parser.getTestDataList(limit=option.get("limit")) if option.get("limit") else data_parser.getTestDataList()
-
             # API 
             apiData_from_db:dict = db_ctrl().getAPIdata(provider=service_provider.name, purpose=purpose)
             api_id = apiData_from_db.get('id')
@@ -141,7 +138,8 @@ class TestController:
         # service_type
         purpose = service_type.value
 
-        data_parser:BaseDataParser = df().getDataParser(testdata=testdata, service_type=service_type)
+        data_info = db_ctrl().getDatainfo(title=testdata.name, purpose=service_type.value)
+        data_parser:BaseDataParser = df().getDataParser(testdata=testdata, service_type=service_type, base_dir=data_info[0])
         testsetList_from_file = data_parser.getTestDataList(limit=limit)
 
 
