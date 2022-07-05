@@ -1,0 +1,16 @@
+
+FROM python:3.9.7-alpine
+
+EXPOSE 9090
+WORKDIR /usr/src
+RUN mkdir logs
+RUN mkdir output
+RUN mkdir dataset
+
+### apk packages
+RUN apk update
+RUN apk add ffmpeg libsndfile-dev g++ tiff-dev jpeg-dev openjpeg-dev zlib-dev freetype-dev lcms2-dev libwebp-dev tcl-dev tk-dev harfbuzz-dev fribidi-dev libimagequant-dev libxcb-dev libpng-dev openblas-dev llvm-dev lapack-dev build-base
+
+### python modules
+RUN pip install --upgrade pip setuptools
+RUN pip install flask requests_toolbelt pydub psycopg2-binary google-cloud-vision pillow numpy==1.20.3 numba==0.54.1 librosa==0.9.1
