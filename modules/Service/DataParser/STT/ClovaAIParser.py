@@ -31,6 +31,8 @@ class ClovaAIParser(BaseDataParser):
                 _numOftd +=1
 
         except FileNotFoundError:
-            logging.error('[ERR] ClovaAIParser - AnswerFile not found. check the target path')
+            logging.error('[ERROR] ClovaAIParser - target file not found. check the path {}'.format(_targetPath))
+        except:
+            logging.error('[ERROR] ClovaAIParser - unexpected error occured.')
 
         return _testDataList
