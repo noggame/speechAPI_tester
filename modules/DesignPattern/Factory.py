@@ -25,13 +25,13 @@ class DataParserFactory():
         FCC = {'origin' : 'Kaggle', 'type':'image'}
 
 
-    def getDataParser(self, testdata:DATA_NAME, service_type:SERVICE_TYPE) -> BaseDataParser:
+    def getDataParser(self, testdata:DATA_NAME, service_type:SERVICE_TYPE, base_dir:str) -> BaseDataParser:
         if testdata == self.DATA_NAME.AIHub and service_type == SERVICE_TYPE.STT:
-            return AIHubParser(targetPath = cfg.get("data", "AIHub"))
+            return AIHubParser(targetPath = base_dir)
         elif testdata == self.DATA_NAME.ClovaAI and service_type == SERVICE_TYPE.STT:
-            return ClovaAIParser(targetPath = cfg.get("data", "ClovaAI"))
+            return ClovaAIParser(targetPath = base_dir)
         elif testdata == self.DATA_NAME.FCC and service_type == SERVICE_TYPE.FD: 
-            return FaceCountingParser(targetFile = cfg.get("data", "FCC"))
+            return FaceCountingParser(targetFile = base_dir)
         else:
             logging.warning("[WARNINIG] {} data parser is not defined".format(testdata.name))
             raise "[WARNINIG] {} data parser is not defined".format(testdata.name)
