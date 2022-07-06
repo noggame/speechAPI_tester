@@ -52,15 +52,15 @@ Python 테스트 클라이언트 이미지 생성을 위해 "environments/docker
 ## Python(3.9.7) 테스트 도구 실행환경 구축
 - Conda
 
-'''
+```
 conda config --add conda-forge
 conda create -n py397 python=3.9.7 --file requirements_conda.txt
 conda install flask
-'''
+```
 
 - Container
 
-pip install -r ./environments/python/requirements.txt
+    pip install -r ./environments/python/requirements.txt
 
 
 
