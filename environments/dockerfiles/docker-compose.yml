@@ -12,7 +12,7 @@ services:
       - db-network
     ports:
       - 9090:9090
-    command: ["tail", "-f", "/dev/null"]
+    command: ["python", "main_restapi"]
 
   adminer:
     image: adminer
