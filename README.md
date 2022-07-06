@@ -23,9 +23,9 @@ Python 테스트 클라이언트 이미지 생성을 위해 "environments/docker
 - 클라이언트 환경설정
     - 경로확인 : "config/cfgParser.py" 파일에서 config/prod.config 파일을 환경설정 파일로 사용도록 설정
 
-''' Python
-config.read(f"{os.getcwd()}/config/prod.config")
-'''
+    ``` Python
+    config.read(f'{os.getcwd()}/config/prod.config')
+    ```
 
     - 환경설정
         - postgresql : DB 접속정보 설정
@@ -51,17 +51,15 @@ config.read(f"{os.getcwd()}/config/prod.config")
 # 개발환경 구축
 ## Python(3.9.7) 테스트 도구 실행환경 구축
 - Conda
-
 ```
 conda config --add conda-forge
 conda create -n py397 python=3.9.7 --file requirements_conda.txt
 conda install flask
 ```
-
 - Container
-
-    pip install -r ./environments/python/requirements.txt
-
+'''
+pip install -r ./environments/python/requirements.txt
+'''
 
 
 # Error Handling
