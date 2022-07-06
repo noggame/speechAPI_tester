@@ -1,8 +1,9 @@
-sample*
-__pycache__/
-logs/
 .vscode
-config/
 .DS_Store
+__pycache__/
+config/dev/
+dataset/
+environments/dev/
+logs/
+main_repo/
 trash/
-main_repo/main_shinhan_sample_6.py
