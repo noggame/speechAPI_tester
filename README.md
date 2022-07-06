@@ -24,7 +24,7 @@ Python 테스트 클라이언트 이미지 생성을 위해 "environments/docker
     - 경로확인 : "config/cfgParser.py" 파일에서 config/prod.config 파일을 환경설정 파일로 사용도록 설정
 
 ''' Python
-config.read(f'{os.getcwd()}/config/prod.config')
+config.read(f"{os.getcwd()}/config/prod.config")
 '''
 
     - 환경설정
