@@ -1,0 +1,45 @@
+version: '3.1'
+
+services:
+
+  apitest:
+    image: apitest:1.0
+    restart: always
+    volumes:
+      - ${SERVER_PATH_SRC}:/usr/src
+      - ${SERVER_PATH_SAMPLE}:/usr/src/dataset
+    networks:
+      - db-network
+    ports:
+      - 9090:9090
+    command: ["tail", "-f", "/dev/null"]
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - db-network
+
+  postgresql:
+    image: postgres:10.8-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PWD}
+    networks:
+      db-network:
+        aliases:
+          - postgresql_host
+    ports:
+      - 5432:5432
+    volumes:
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    
+
+networks:
+  db-network:
+
+### execute
+# docker-compose --env-file ./environments/dockerfiles/config/.env -f ./environments/dockerfiles/docker-compose.yml up -d
