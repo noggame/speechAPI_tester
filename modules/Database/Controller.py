@@ -15,7 +15,7 @@ class APIDatabaseController(metaclass=MetaSingleton):
     def connect(self):
         try:
             self._connection = psycopg2.connect(
-                host="0.0.0.0",
+                host=cfg.get("postgresql", "host"),
                 port=cfg.get("postgresql", "port"),
                 dbname=cfg.get("postgresql", "dbname"),
                 user=cfg.get("postgresql", "user"),

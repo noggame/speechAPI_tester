@@ -46,7 +46,9 @@ class AIHubParser(BaseDataParser):
                         _numOftd += 1
 
         except FileNotFoundError:
-            logging.error('[ERR] AIHubParser - ExpectedTargetDirectory not found. check the target path')
+            logging.error('[ERROR] AIHubParser - target file not found. check the path {}'.format(_targetPath))
+        except:
+            logging.error('[ERROR] AIHubParser - unexpected error occured.')
 
         return _testDataList
 

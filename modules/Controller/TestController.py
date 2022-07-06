@@ -79,7 +79,9 @@ class TestController:
         elif option.get('update_result'):
             self._updateResultdata(testdata=testdata, service_provider=service_provider, service_type=service_type, limit=data_limit)
 
-        
+        # exception) testset data not found
+        if not testsetList_from_db:
+            return None
 
         ### DB에서 테스트셋 및 결과 확인 (결과에 대해서는 정보가 없는 경우 추가)
         for testset in testsetList_from_db:
@@ -140,6 +142,9 @@ class TestController:
 
         data_info = db_ctrl().getDatainfo(title=testdata.name, purpose=service_type.value)
         data_parser:BaseDataParser = df().getDataParser(testdata=testdata, service_type=service_type, base_dir=data_info[0])
+        if not data_parser:
+            return
+
         testsetList_from_file = data_parser.getTestDataList(limit=limit)
 
 

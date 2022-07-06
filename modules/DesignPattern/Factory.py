@@ -17,6 +17,7 @@ from modules.Service.Type import SERVICE_TYPE
 from enum import Enum
 import logging
 import config.cfgParser as cfg
+import os
 
 class DataParserFactory():
     class DATA_NAME(Enum):
@@ -26,6 +27,9 @@ class DataParserFactory():
 
 
     def getDataParser(self, testdata:DATA_NAME, service_type:SERVICE_TYPE, base_dir:str) -> BaseDataParser:
+        if not os.path.exists(base_dir):
+            logging.warning("[WARNINIG]::DataParserFactory base_dir is not found - {}".format(base_dir))
+
         if testdata == self.DATA_NAME.AIHub and service_type == SERVICE_TYPE.STT:
             return AIHubParser(targetPath = base_dir)
         elif testdata == self.DATA_NAME.ClovaAI and service_type == SERVICE_TYPE.STT:
@@ -34,7 +38,8 @@ class DataParserFactory():
             return FaceCountingParser(targetFile = base_dir)
         else:
             logging.warning("[WARNINIG] {} data parser is not defined".format(testdata.name))
-            raise "[WARNINIG] {} data parser is not defined".format(testdata.name)
+
+        return None
 
 
 class ServiceFactory():
@@ -74,8 +79,8 @@ class ServiceFactory():
             
         else:
             logging.warning("[WARNINIG] {} API Caller is not defined or {} is not supperted".format(service_provider.name, service_type.name))
-            raise "[WARNINIG] {} API Caller is not defined or {} is not supperted".format(service_provider.name, service_type.name)
 
+        return None
 
 class AnlalyzerFactory():
 
@@ -86,5 +91,5 @@ class AnlalyzerFactory():
             return FDResultAnalyzer()
         else:
             logging.warning("[WARNINIG] {} Analyzer is not defined".format(service_type.name))
-            raise "[WARNINIG] {} Analyzer is not defined".format(service_type.name)
 
+        return None

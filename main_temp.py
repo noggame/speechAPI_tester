@@ -12,21 +12,25 @@ cur_time = time.time()
 ########## Face
 # tc = TestController()
 test_option = {
-    'data_limit' : 100,
+    'data_limit' : 1,
     'update_data' : True
 }
 ### STT
-# testResultList = tc.testWith(testdata = df.DATA_NAME.__getitem__(name="ClovaAI"),
-#                         service_provider = sf.PROVIDER.__getitem__(name="KT"),
-#                         service_type = SERVICE_TYPE.__getitem__(name="STT"),
-#                         option = test_option)
-### FD
-testResultList = tc.testWith(testdata = df.DATA_NAME.__getitem__(name="FCC"),
+testResultList = tc.testWith(testdata = df.DATA_NAME.__getitem__(name="AIHub"),
                         service_provider = sf.PROVIDER.__getitem__(name="Kakao"),
-                        service_type = SERVICE_TYPE.__getitem__(name="FD"),
+                        service_type = SERVICE_TYPE.__getitem__(name="STT"),
                         option = test_option)
+### FD
+# testResultList = tc.testWith(testdata = df.DATA_NAME.__getitem__(name="FCC"),
+#                         service_provider = sf.PROVIDER.__getitem__(name="Kakao"),
+#                         service_type = SERVICE_TYPE.__getitem__(name="FD"),
+#                         option = test_option)
 
 print("소요시간 : {}".format(time.time()-cur_time))
 
-print("샘플수 : {}, 평균_정확도 : {}".format(testResultList[0], testResultList[1]))
+if testResultList:
+    print("샘플수 : {}, 평균_정확도 : {}".format(testResultList[0], testResultList[1]))
+else:
+    print("Test Failed")
+    
 
