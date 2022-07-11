@@ -6,8 +6,12 @@ services:
     image: apitest:1.0
     restart: always
     volumes:
-      - ${SERVER_PATH_SRC}:/usr/src
-      - ${SERVER_PATH_SAMPLE}:/usr/src/dataset
+      - type: bind
+        source: ${SERVER_PATH_SRC}
+        target: /usr/src
+      - type: bind
+        source: ${SERVER_PATH_SAMPLE}
+        target: /usr/src/dataset
     networks:
       - db-network
     ports:
@@ -35,9 +39,10 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+      - type: bind
+        source: ${POSTGRES_DATA_PATH}
+        target: /var/lib/postgresql/data
     
-
 networks:
   db-network:
 
