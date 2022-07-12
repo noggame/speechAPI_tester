@@ -1,9 +1,8 @@
 version: '3.1'
 
 services:
-
   apitest:
-    image: apitest:1.0
+    image: apitest:1.1
     restart: always
     volumes:
       - type: bind
@@ -13,10 +12,25 @@ services:
         source: ${SERVER_PATH_SAMPLE}
         target: /usr/src/dataset
     networks:
+      - front-network
       - db-network
     ports:
       - 9090:9090
-    command: ["python", "main_restapi"]
+    command: ["python", "main_restapi.py"]
+    #command: ["tail", "-f", "/dev/null"]
+
+  webserver:
+    image: openjdk:8-jdk-alpine
+    restart: always
+    volumes:
+      - type: bind
+        source: ${WEB_SERVER_PATH_WAR}
+        target: /usr/src
+    networks:
+      - front-network
+    ports:
+      - 9080:9080
+    command: ["java", "-jar", "/usr/src/testweb-PRODUCTION.jar"]
 
   adminer:
     image: adminer
@@ -33,9 +47,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PWD}
     networks:
-      db-network:
-        aliases:
-          - postgresql_host
+      - db-network
     ports:
       - 5432:5432
     volumes:
@@ -44,7 +56,5 @@ services:
         target: /var/lib/postgresql/data
     
 networks:
+  front-network:
   db-network:
-
-### execute
-# docker-compose --env-file ./environments/dockerfiles/config/.env -f ./environments/dockerfiles/docker-compose.yml up -d

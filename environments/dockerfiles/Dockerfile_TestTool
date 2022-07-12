@@ -13,4 +13,8 @@ RUN apk add ffmpeg libsndfile-dev g++ tiff-dev jpeg-dev openjpeg-dev zlib-dev fr
 
 ### python modules
 RUN pip install --upgrade pip setuptools
-RUN pip install flask requests_toolbelt pydub psycopg2-binary google-cloud-vision pillow numpy==1.20.3 numba==0.54.1 librosa==0.9.1
+RUN pip install flask waitress
+RUN pip install requests_toolbelt pydub psycopg2-binary google-cloud-vision pillow
+RUN pip install numpy==1.20.3
+RUN pip install numba==0.54.1
+RUN pip install librosa==0.9.1
