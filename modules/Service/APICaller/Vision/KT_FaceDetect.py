@@ -16,11 +16,15 @@ class KT_FaceDatect(BaseAPICaller):
 
         headers = options if options else self.options
         files = {'imgFile':open(_targetFile, 'rb')}
+        payload = {
+            'fileName': _targetFile,
+            'threshold': 0
+        }
 
         faceList = []
 
         try:
-            response = requests.post(url=_url, headers=headers, files=files)
+            response = requests.post(url=_url, headers=headers, files=files, data=payload)
             im = Image.open(targetFile)
 
             if response.status_code == 200:
@@ -53,13 +57,11 @@ class KT_FaceDatect(BaseAPICaller):
                 # sorting with coordinate.x
                 faceList.sort(key=lambda f: f.x)
             else:
-                logging.warn("[ERROR] bad response. >> {}".format(response))
-                
-                return faceList
+                logging.warning("[WARNING] bad response :: KT_FaceDetect - {}".format(response))
+                return None
 
         except Exception as e:
-            # logging.warn("[ERROR] bad response. >> {}".format(response))
-            print("[Error] fail to request. >> {}".format(e))
+            logging.warning("[WARNING] fail to request. - {}".format(response))
             return None
         
         return faceList
