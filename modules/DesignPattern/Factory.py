@@ -2,6 +2,7 @@
 from modules.Service.APICaller.STT.KT_STT import KT_STT
 from modules.Service.APICaller.STT.Kakao_STT import Kakao_STT
 from modules.Service.APICaller.BaseAPICaller import BaseAPICaller
+from modules.Service.APICaller.STT.VITO_STT import VITO_STT
 from modules.Service.APICaller.Vision.Google_FaceDetect import Google_FaceDetection
 from modules.Service.APICaller.Vision.KT_FaceDetect import KT_FaceDatect
 from modules.Service.APICaller.Vision.Kakao_FaceDetect import Kakao_FaceDetect
@@ -47,6 +48,7 @@ class ServiceFactory():
         KT = "KT"
         Kakao = "Kakao"
         Google = "Google"
+        VITO = "VITO"
 
 
     def getAPICaller(self, service_provider:PROVIDER, service_type:SERVICE_TYPE, service_info:dict) -> BaseAPICaller:
@@ -64,6 +66,14 @@ class ServiceFactory():
         ### Kakao_STT
         elif service_provider == self.PROVIDER.Kakao and service_type == SERVICE_TYPE.STT:
             return Kakao_STT(url = service_url, key = service_keys[0][1])
+
+        ### VITO_STT
+        elif service_provider == self.PROVIDER.VITO and service_type == SERVICE_TYPE.STT:
+            VITO_keys = {}
+            for k_name, k_value in service_keys:
+                VITO_keys[k_name] = k_value
+
+            return VITO_STT(url=service_url, key=VITO_keys)
 
         ### Kakao_FaceDetection
         elif service_provider == self.PROVIDER.Kakao and service_type == SERVICE_TYPE.FD:
