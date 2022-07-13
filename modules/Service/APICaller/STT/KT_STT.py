@@ -32,9 +32,17 @@ class KT_STT(BaseAPICaller):
         #     logging.error(f'[ERR] {__class__.__name__} - wrong options input in {__name__}')
 
         # convert soundFile.format to mp3
-        if not str(_targetFile).endswith('.mp3'):
-            sc.convertWAVtoMP3(_targetFile)
-            _targetFile = f'{_targetFile[:-4]}.mp3'
+        try:
+            if not str(_targetFile).endswith('.mp3'):
+                sc.convertWAVtoMP3(_targetFile)
+                _targetFile = f'{_targetFile[:-4]}.mp3'
+        except FileNotFoundError as fe:
+            logging.warning("[WARNING] file not found. :: KT_STT.request() - {}".format(fe))
+            return None
+        except:
+            logging.warning("[WARNING] Unexpected exception occured. :: KT_STT.request()")
+            return None
+
 
         # set - KT STT Client
         kt_sttClient = KT_STT_SDK()
@@ -56,7 +64,6 @@ class KT_STT(BaseAPICaller):
             audio_data = file.read()
             result_json:dict = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
             logging.info(f'response of kt_stt = {result_json}')
-
 
             if isstring(result_json):
                 result_json = json.loads(result_json)
