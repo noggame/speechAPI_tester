@@ -141,6 +141,9 @@ class TestController:
         purpose = service_type.value
 
         data_info = db_ctrl().getDatainfo(title=testdata.name, purpose=service_type.value)
+        if not data_info:
+            logging.warning("[WARNING] {} data is not exist or not support {}".format(testdata.name, service_type.value))
+            return
         data_parser:BaseDataParser = df().getDataParser(testdata=testdata, service_type=service_type, base_dir=data_info[0])
         if not data_parser:
             return
