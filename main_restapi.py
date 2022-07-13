@@ -27,7 +27,7 @@ def test_accuracy():
         params = json.loads(request.get_data(as_text=True))
 
         test_option = {
-            'data_limit' : 1, # int(params['data_limit']),
+            'data_limit' : int(params['data_limit']),
             'update_data' : True
         }
 
