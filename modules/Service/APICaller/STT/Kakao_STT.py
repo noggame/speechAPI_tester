@@ -10,22 +10,6 @@ class Kakao_STT(BaseAPICaller):
     def __init__(self, url, key, targetFile=None, options=None):
         super().__init__(url, key, targetFile, options)
 
-    def _getJsonDataFromIndex(self, target:str, startIndex:int):
-        numOfBracket = 0
-        result = ''
-
-        for c in target[startIndex:]:
-            if c == '{':
-                numOfBracket += 1
-            elif c == '}':
-                numOfBracket -= 1
-            
-            result += c
-            if numOfBracket == 0:
-                return result
-
-        return 
-
     def request(self, url=None, key=None, targetFile=None, options=None):
         _url = url if url else self.url
         _key = key if key else self.key
@@ -68,3 +52,20 @@ class Kakao_STT(BaseAPICaller):
         ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
             
         return ttsResultList
+
+
+    def _getJsonDataFromIndex(self, target:str, startIndex:int):
+        numOfBracket = 0
+        result = ''
+
+        for c in target[startIndex:]:
+            if c == '{':
+                numOfBracket += 1
+            elif c == '}':
+                numOfBracket -= 1
+            
+            result += c
+            if numOfBracket == 0:
+                return result
+
+        return 
