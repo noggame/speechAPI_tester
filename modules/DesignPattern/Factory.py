@@ -71,7 +71,7 @@ class ServiceFactory():
 
         ### KT_FaceDetection
         elif service_provider == self.PROVIDER.KT and service_type == SERVICE_TYPE.FD:
-            return KT_FaceDatect(url = service_url, options={'threshold':'0', 'fileName':'10001.jpg'})
+            return KT_FaceDatect(url = service_url)
 
         ### Google_FaceDetection (만료)
         # elif service_provider == self.PROVIDER.Google and service_type == SERVICE_TYPE.FD:
