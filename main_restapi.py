@@ -16,7 +16,7 @@ tc = TestController()
 
 @app.route(f"{base_url}/")
 def hello_world():
-    return "<p>HWorld!</p>"
+    return "<p>Homepage!</p>"
 
 
 @app.route(f"{base_url}/test", methods=['Post'])
@@ -24,12 +24,16 @@ def test_accuracy():
 
     ### Get request_data
     try:
-        params = json.loads(request.get_data(as_text=True))
+        params:dict = json.loads(request.get_data(as_text=True))
 
-        test_option = {
-            'data_limit' : int(params['data_limit']),
-            'update_data' : True
-        }
+        try:
+            test_option = {
+                'data_limit' : int(params['data_limit']),
+                'update_data' : True
+            }
+        except:
+            logging.error("[ERROR] Wrong input - not a number (on data limit)")
+            return "Wrong Input"
 
         data_name = params['data_name']
         service_provider = params['service_provider']
@@ -53,7 +57,7 @@ def test_accuracy():
         return str("Test Failed. - Check options or Contact to admin.")
 
     if not testResultList:
-        return "empry"
+        return "empty"
     return str("샘플수 : {}, 평균_정확도 : {}".format(testResultList[0], testResultList[1]))
 
 
