@@ -78,6 +78,10 @@ class TestController:
             testsetList_from_db = db_ctrl().getTestsetList(title=data_name, purpose=purpose, limit=data_limit)
         elif option.get('update_result'):
             self._updateResultdata(testdata=testdata, service_provider=service_provider, service_type=service_type, limit=data_limit)
+        elif option.get('register_testdata_all'):
+            self._updateTestdata(testdata=testdata, service_type=service_type, limit=0)
+            testsetList_from_db = db_ctrl().getTestsetList(title=data_name, purpose=purpose)
+            return None
 
         # exception) testset data not found
         if not testsetList_from_db:
@@ -139,6 +143,8 @@ class TestController:
         data_type = testdata.value['type']
         # service_type
         purpose = service_type.value
+        # limit
+        _limit = 0 if not limit else limit
 
         data_info = db_ctrl().getDatainfo(title=testdata.name, purpose=service_type.value)
         if not data_info:
@@ -148,7 +154,7 @@ class TestController:
         if not data_parser:
             return
 
-        testsetList_from_file = data_parser.getTestDataList(limit=limit)
+        testsetList_from_file = data_parser.getTestDataList(limit=_limit)
 
 
         ### INSERT datainfo
