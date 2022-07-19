@@ -54,6 +54,10 @@ class FDResultAnalyzer(BaseResultAnalyzer):
         samples = self.resultStack['statistics']['numOfSamples']
         accuracy_avg = round(float(self.resultStack['statistics']['accuracy_sum']/samples)*100, 2)
 
+        # TODO::FDResultAnalyzer::분석 스택 파일로 저장
+        # _saveEvaluationData(some_path)
+        # print(self.resultStack)
+
         return samples, accuracy_avg
 
     
@@ -69,8 +73,8 @@ class FDResultAnalyzer(BaseResultAnalyzer):
 
             for exp in expectedList:    # for each expected
                 # 실제값 기준 각 기대값 박스와 매칭해보면서 자카드 유사도 계산 > 계산 결과 중 가장 유사도가 높은 배열 한 곳에 [idx, similarity] 값 저장
-                act:dict = json.loads(actualList[idx_act])
-                exp:dict = json.loads(exp)
+                act:dict = json.loads(str(actualList[idx_act]).replace("'", '"'))
+                exp:dict = json.loads(str(exp).replace("'", '"'))
                 rect_act = RectangleBox(act.get('x'), act.get('y'), act.get('width'), act.get('height'))
                 rect_exp = RectangleBox(exp.get('x'), exp.get('y'), exp.get('width'), exp.get('height'))
                 jaccardScore = self._getJaccardSimirality(rect_act, rect_exp)
@@ -87,7 +91,7 @@ class FDResultAnalyzer(BaseResultAnalyzer):
             "service": result.service,
             "expected": expectedList,
             "actual": actualList,
-            "metric": "Face Counting",
+            "metric": "Face Counting",  # TODO::FDResultAnalyzer::테스트 요청시 선택된 메트릭
             "accuracy": float(accuracy)
         }
 
@@ -101,7 +105,7 @@ class FDResultAnalyzer(BaseResultAnalyzer):
         # print(result.source, bestResult)
 
 
-        # TODO: FDResultAnalyzer : FaceDetection 분석 결과 저장
+        # TODO: FDResultAnalyzer : FaceDetection 분석 결과 이미지 저장
         ### make image
         # if record:
         #     fileName = str(result.source).split('/')
@@ -112,44 +116,11 @@ class FDResultAnalyzer(BaseResultAnalyzer):
         #     logging.info("save image : {}".format(saveFilePath))
 
 
-        ### 기대/인식 사람 얼굴 수 비교한 결과값 저장(record param.) 및 반환
-        # return self.getStaticInfo(analysisData = _analysisRepo.getAnalysisRepo) 
-
-
-
-    # def addAnalysisData(self, testResult:TestResult, bestResult:list):
-    #     """ TestResult를 입력받아 분석하고, 분석 결과를 Analysis Reopistory에 저장 """
-    #     # self._analysisResultDict = {}
-        
-        
-    #     staticInfoList = []
-            
-    #     # collect static information
-    #     numOfMatching = len([idx_act for [idx_act, score] in bestResult if idx_act != None])
-    #     staticInfoList.append({
-    #         "service": testResult.service,
-    #         "expected": len(testResult.expected),
-    #         "actual": len(testResult.actual),
-    #         "matching": numOfMatching,
-    #         "accuracy": numOfMatching/len(testResult.expected)
-    #     })
-
-    #     # store static data
-    #     if testResult.id not in self._analysisResultDict:
-    #         eachId = self._analysisResultDict[testResult.id] = {}   # set id
-    #         eachId['source'] = testResult.source                    # set source
-    #         eachId['statics'] = []                                  # init. static
-        
-    #     statics:list = self._analysisResultDict[testResult.id]['statics']
-    #     statics.extend(staticInfoList)
 
 
 
 
-
-
-
-### Image Processing
+    ### Image Processing
     def _saveAnalizedImage(self, source:str, dest:str, expectedList, actualList, analysisResult):
         ### init.
         img = Image.open(source)
