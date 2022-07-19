@@ -10,6 +10,7 @@ from modules.Database.Controller import APIDatabaseController as db_ctrl
 from modules.DesignPattern.Factory import DataParserFactory as df, ServiceFactory as sf, AnlalyzerFactory as af
 
 import psycopg2
+import time
 
 class TestController:
     def __init__(self) -> None:
@@ -46,6 +47,7 @@ class TestController:
 
         # option
         data_limit = option.get('data_limit')
+        cur_time = time.time()
 
 
         ### INIT. testdata objects
@@ -127,6 +129,7 @@ class TestController:
                             actual = db_ctrl().getActualDataFromResultByUnique(testset=testset_id, api=api_id))
             resultList.append(tr)
 
+        logging.info("[데이터 로딩시간] : {}".format(time.time()-cur_time))
 
         return analyzer.analysisResultStack(resultList=resultList)
 
