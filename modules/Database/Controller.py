@@ -261,7 +261,6 @@ class APIDatabaseController(metaclass=MetaSingleton):
                                     AND source = '{source}'")
 
             self._connection.commit()
-            print("[STORE] expect data - {}".format(value))
             logging.info("[STORE] expect data - {}".format(value))
 
         except psycopg2.Error as e:
@@ -303,7 +302,6 @@ class APIDatabaseController(metaclass=MetaSingleton):
                                                         AND source='{source}')")
 
             self._connection.commit()
-            print("[DELETE] all expect data - {}".format(source))
             logging.info("[DELETE] all expect data - {}".format(source))
 
         except psycopg2.Error as e:
@@ -435,7 +433,6 @@ class APIDatabaseController(metaclass=MetaSingleton):
                                 WHERE testset='{testset}' AND api='{api}'")
 
             self._connection.commit()
-            print("[STORE] actual data - {}".format(value))
             logging.info("[STORE] actual data - {}".format(value))
 
         except psycopg2.Error as e:

@@ -22,7 +22,7 @@ class TestController:
             apidb = db_ctrl()
             apidb.connect()
         except psycopg2.Error as e:
-            logging.info(f"[Error] DB Connecting Error. - {e}")
+            logging.error(f"[ERROR] DB Connecting Error. - {e}")
 
         return apidb
 
@@ -30,8 +30,8 @@ class TestController:
     def testWith(self, testdata:df.DATA_NAME, service_provider:sf.PROVIDER, service_type:SERVICE_TYPE, option:dict=None):
         """DB에서 testset, 테스트 결과를 불러와 분석하고, 분석결과를 반환\n
         
-        [option]\n
-        * [update | update_data | updata_result ]:bool = update flag
+        [OPTION]\n
+        * [ update | update_data | updata_result | register_all_testdata ]:bool = update flag
         * data_limit:int = 데이터 수
         * api_version:str = api 버젼
         """
@@ -109,7 +109,6 @@ class TestController:
             ### INSERT actual
             if not actualList_from_DB:
                 response_data:list = api_caller.request(targetFile=testset_source)
-                print("[STORE] trying to store actual data from {}".format(testset_source))
                 logging.info("[STORE] trying to store actual data from {}".format(testset_source))
 
                 if response_data:

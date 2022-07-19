@@ -17,7 +17,7 @@ def convertWAVtoMP3(srcFile):
     ext_mp3 = srcFile[:-4]+'.mp3'
     if not os.path.isfile(ext_mp3):
         try:
-            logging.info(f'converting {srcFile} to mp3')
+            logging.info(f'[INFO] converting {srcFile} to mp3')
             voice = AudioSegment.from_file(file=srcFile)
             voice.export(ext_mp3, format="mp3")
 
@@ -25,8 +25,8 @@ def convertWAVtoMP3(srcFile):
             waitForCvt = (os.path.getsize(srcFile)/1024000)+1
             time.sleep(waitForCvt)
 
-        except RuntimeError:
-            logging.error(f'[ERR] {__name__} - Fail to convert wav to mp3 file')
+        except Exception as e:
+            logging.error('[ERROR] {} - Fail to convert wav to mp3 file - {}'.format(__name__, e))
 
 
 def convert_PCM_To_WAV(target, dest, org_sr, re_sr):

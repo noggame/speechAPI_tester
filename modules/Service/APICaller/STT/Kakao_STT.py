@@ -27,29 +27,28 @@ class Kakao_STT(BaseAPICaller):
         try:
             response = requests.post(url = _url, headers = _header, data = wav)
         except ConnectionError as ce:
-            logging.exception(f'[Exception] {__class__.__name__} - {ce}')
+            logging.error(f'[ERROR] Connection error :: {__class__.__name__} - {ce}')
+        except Exception as e:
+            logging.error(f'[ERROR] Unexpected error occured :: {__class__.__name__} - {e}')
 
         if response.status_code == 200:
-            logging.info(f'[info] {__class__.__name__} - {response.text}')
-
             responseText = response.text
             finalIndex = responseText.find('{"type":"finalResult"')
             finalResult = self._getJsonDataFromIndex(responseText, finalIndex)
 
             if not finalResult or finalIndex == -1:
+                # 정상응답 받았으나 실데이터가 없는 경우
                 ttsResultList.append("")
-                logging.exception(f'[Exception] {__class__.__name__} - json, "finalResult" not found, response = {response}')
+                logging.warning("[WARNING] Response data is empty :: {} - {}".format(__class__.__name__, response.text))
             else:
                 ttsResultList.append(f"\"{json.loads(finalResult)['value']}\"")
 
-
         elif response.status_code == 401:
-            logging.exception(f'[Exception] {__class__.__name__} - un-registered ips. response = {response}')
+            logging.error("[ERROR] Unauthorized, un-registered ip. :: {} - {}".format(__class__.__name__, response.text))
             return None
         else:
-            logging.exception(f'[Exception] {__class__.__name__} - not-expected exception occured. response = {response}')
+            logging.error("[ERROR] Unexpected response status :: {} - {}".format(__class__.__name__, response.text))
             return None
-        ##### +) Response가 400 일때는 키에대한 접근 권한이 만료된 경우 > 키 변경
             
         return ttsResultList
 

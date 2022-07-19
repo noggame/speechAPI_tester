@@ -63,38 +63,28 @@ class KT_STT(BaseAPICaller):
         with open(_targetFile, mode='rb') as file:
             audio_data = file.read()
             result_json:dict = kt_sttClient.requestSTT(audio_data, stt_mode, target_language, encoding, channel, sample_rate, sample_fmt)
-            logging.info(f'response of kt_stt = {result_json}')
 
             if isstring(result_json):
                 result_json = json.loads(result_json)
             
             if not result_json or result_json.get('statusCode') != 200:
-                logging.exception(f'[Exception] {__class__.__name__} - None Transaction id')
-                logging.exception(result_json)
+                logging.error("[ERROR] Unexpected response status :: {} - {}".format(__class__.__name__, result_json))
                 return sttResult
 
-
-            # request transaction_id
+            # request transaction_id & stt_data
             result_array = result_json.get("result")
             transaction_id = json.loads(result_array[0]).get("transactionId")
-            logging.info(f'transaction_id = {transaction_id}')
-
-
-            # request stt_data from transaction_id
             query_result_json = kt_sttClient.querySTT(transaction_id)
-            logging.info(f'query_result_json = {query_result_json}')
-
 
             # waiting for request
             timeout = 10
             while not query_result_json or query_result_json.get('sttStatus') == 'processing':
                 query_result_json = kt_sttClient.querySTT(transaction_id)
-                logging.info(f'waiting,,, query_result_json = {query_result_json}')
                 if timeout > 0:
                     timeout -= 1
                     time.sleep(1)
                 else:
-                    logging.exception(f'[Exception] {__class__.__name__} - timeout - response = {query_result_json}')
+                    logging.warning('[WARNING] Timeout :: {} - last_response_data = {}'.format(__class__.__name__, query_result_json))
                     return sttResult
 
             # parse stt_data
@@ -104,8 +94,8 @@ class KT_STT(BaseAPICaller):
                     for eachResult in jsonResult:
                         sttResult.append(f"\"{eachResult['text']}\"")
                 else:
-                    logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
+                    logging.warning("[WARNING] sttResults is empty :: {} - response = {}".format(__class__.__name__, query_result_json))
             else:
-                logging.exception(f'[Exception] {__class__.__name__} - response = {query_result_json}')
+                logging.warning("[WARNING] Unexpected status :: {} - response = {}".format(__class__.__name__, query_result_json))
 
         return sttResult

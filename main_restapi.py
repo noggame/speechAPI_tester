@@ -13,6 +13,8 @@ from modules.DesignPattern.Factory import DataParserFactory as df, ServiceFactor
 app = Flask(__name__)
 base_url = ''
 tc = TestController()
+logging.getLogger().setLevel(logging.INFO)
+# (format='%(asctime)s %(message)s')
 
 @app.route(f"{base_url}/")
 def hello_world():
@@ -27,6 +29,7 @@ def test_accuracy():
         params:dict = json.loads(request.get_data(as_text=True))
 
         try:
+            # TODO: 데이터 제한개수가 0개일 경우, option으로 전체 테스트 요청이 왔는지 확인. >> 전체요청이 아닌 경우 잘못된 요청으로 처리
             test_option = {
                 'data_limit' : int(params['data_limit']),
                 'update_data' : True

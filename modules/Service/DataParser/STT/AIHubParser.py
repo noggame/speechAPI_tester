@@ -39,7 +39,7 @@ class AIHubParser(BaseDataParser):
 
                         # test data
                         td = TestData(id=id, expectedList=expList, sampleFilePath=soundFile)
-                        logging.info(td)
+                        logging.info("[INFO] TestData = {}".format(td.expectedList))
                         _testDataList.append(td)
 
                         # inc.
@@ -59,7 +59,7 @@ class AIHubParser(BaseDataParser):
         try:
             expectedSentence = open(expectedInfoFile, 'r').readline()
         except FileNotFoundError:
-            logging.error('[ERR] AIHubParser - ExpectedInfoFile not found. check the expected information file path')
+            logging.error('[ERROR] AIHubParser - ExpectedInfoFile not found. check the expected information file path')
 
         headwordList = re.findall("\([\w\s]+\)[/]*", expectedSentence)         # 표제어 추출 ('괄호' 및 '/' 구분자 가정)
         sentence_div = re.sub("[/]*\([\w\s]+\)", "^", expectedSentence)

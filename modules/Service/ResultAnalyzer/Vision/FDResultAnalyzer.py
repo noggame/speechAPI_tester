@@ -97,7 +97,7 @@ class FDResultAnalyzer(BaseResultAnalyzer):
 
 
         # _analysisRepo.addAnalysisData(testResult=result, bestResult=bestResult)
-        logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
+        # logging.info("source = {}, MatchingResult = {}".format(result.source, bestResult))
         # print(result.source, bestResult)
 
 
