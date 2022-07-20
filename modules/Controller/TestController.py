@@ -131,6 +131,13 @@ class TestController:
 
         logging.info("[데이터 로딩시간] : {}".format(time.time()-cur_time))
 
+        ### TODO: 결과파일 저장
+        # f = open("/Users/songdonghun/workspace/python/speechAPI_tester/logs/eval.txt", "w")
+        # for result in resultList:
+        #     result:TestResult = result
+        #     f.write(str(result)+"\n")
+        # f.close()
+
         return analyzer.analysisResultStack(resultList=resultList)
 
 
